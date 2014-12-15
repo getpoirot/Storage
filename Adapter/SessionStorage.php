@@ -26,10 +26,8 @@ class SessionStorage implements StorageInterface
      * Construct
      *
      */
-    public function __construct($ident = null)
+    public function __construct()
     {
-        $this->setIdent($ident);
-
         $this->init();
     }
 
@@ -54,6 +52,10 @@ class SessionStorage implements StorageInterface
      */
     function getIdent()
     {
+        if (!$this->ident) {
+            $this->ident = session_id();
+        }
+
         return $this->ident;
     }
 
@@ -81,25 +83,13 @@ class SessionStorage implements StorageInterface
     protected function sessionExists()
     {
         $sid = defined('SID') ? constant('SID') : false;
-        if ($sid !== false && $this->getId())
+        if ($sid !== false && $this->getIdent())
             return true;
 
         if (headers_sent())
             return true;
 
         return false;
-    }
-
-    /**
-     * Get session ID
-     *
-     * Proxies to {@link session_id()}
-     *
-     * @return string
-     */
-    protected function getId()
-    {
-        return session_id();
     }
 
     /**
@@ -122,7 +112,7 @@ class SessionStorage implements StorageInterface
      */
     function set($key, $value)
     {
-        $_SESSION[$this->getIdent()][$key] = $value;
+        $_SESSION[$key] = $value;
 
         return $this;
     }
@@ -139,7 +129,7 @@ class SessionStorage implements StorageInterface
     {
         $val = $default;
         if ($this->has($key))
-            $val = $_SESSION[$this->getIdent()][$key];
+            $val = $_SESSION[$key];
 
         return $val;
     }
@@ -153,7 +143,7 @@ class SessionStorage implements StorageInterface
      */
     function has($key)
     {
-        return isset($_SESSION[$this->getIdent()][$key]);
+        return isset($_SESSION[$key]);
     }
 
     /**
@@ -165,7 +155,7 @@ class SessionStorage implements StorageInterface
      */
     function del($key)
     {
-        unset($_SESSION[$this->getIdent()][$key]);
+        unset($_SESSION[$key]);
 
         return $this;
     }
@@ -177,7 +167,7 @@ class SessionStorage implements StorageInterface
      */
     function keys()
     {
-        return array_keys($_SESSION[$this->getIdent()]);
+        return array_keys($_SESSION);
     }
 
     /**
@@ -187,7 +177,7 @@ class SessionStorage implements StorageInterface
      */
     function destroy()
     {
-        unset($_SESSION[$this->getIdent()]);
+        $_SESSION = [];
     }
 
     /**
