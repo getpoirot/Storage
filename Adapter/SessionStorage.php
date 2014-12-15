@@ -42,6 +42,8 @@ class SessionStorage implements StorageInterface
     {
         $this->ident = $identity;
 
+        session_id($this->ident);
+
         return $this;
     }
 
@@ -67,10 +69,8 @@ class SessionStorage implements StorageInterface
      */
     function init()
     {
-        session_start();
-
         if (!$this->sessionExists())
-            throw new \Exception('No Session Exists.');
+            session_start();
 
         $this->isInit = true;
     }
@@ -82,12 +82,13 @@ class SessionStorage implements StorageInterface
      */
     protected function sessionExists()
     {
-        $sid = defined('SID') ? constant('SID') : false;
-        if ($sid !== false && $this->getIdent())
-            return true;
-
-        if (headers_sent())
-            return true;
+        if ( php_sapi_name() !== 'cli' ) {
+            if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+                return session_status() === PHP_SESSION_ACTIVE ? true : false;
+            } else {
+                return session_id() === '' ? false : true;
+            }
+        }
 
         return false;
     }
@@ -112,6 +113,8 @@ class SessionStorage implements StorageInterface
      */
     function set($key, $value)
     {
+        $this->checkEnvironment();
+
         $_SESSION[$key] = $value;
 
         return $this;
@@ -127,6 +130,8 @@ class SessionStorage implements StorageInterface
      */
     function get($key, $default = null)
     {
+        $this->checkEnvironment();
+
         $val = $default;
         if ($this->has($key))
             $val = $_SESSION[$key];
@@ -143,6 +148,8 @@ class SessionStorage implements StorageInterface
      */
     function has($key)
     {
+        $this->checkEnvironment();
+
         return isset($_SESSION[$key]);
     }
 
@@ -155,6 +162,8 @@ class SessionStorage implements StorageInterface
      */
     function del($key)
     {
+        $this->checkEnvironment();
+
         unset($_SESSION[$key]);
 
         return $this;
@@ -167,6 +176,8 @@ class SessionStorage implements StorageInterface
      */
     function keys()
     {
+        $this->checkEnvironment();
+
         return array_keys($_SESSION);
     }
 
@@ -177,7 +188,18 @@ class SessionStorage implements StorageInterface
      */
     function destroy()
     {
+        $this->checkEnvironment();
+
         $_SESSION = [];
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function checkEnvironment()
+    {
+        if (!$this->sessionExists())
+            throw new \Exception('No Session Exists.');
     }
 
     /**
