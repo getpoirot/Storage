@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Storage;
 
-use Poirot\Core\EntityInterface;
+use Poirot\Core\Interfaces\EntityInterface;
 
 interface StorageInterface extends EntityInterface
 {

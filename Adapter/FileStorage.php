@@ -2,7 +2,7 @@
 namespace Poirot\Storage\Adapter;
 
 use Poirot\Core\Entity;
-use Poirot\Core\EntityInterface;
+use Poirot\Core\Interfaces\EntityInterface;
 use Poirot\Storage\StorageInterface;
 
 class FileStorage extends Entity
