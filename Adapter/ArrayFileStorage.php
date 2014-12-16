@@ -3,10 +3,14 @@ namespace Poirot\Storage\Adapter;
 
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
+use Poirot\Core\Interfaces\OptionsProviderInterface;
+use Poirot\Storage\Adapter\FileStorage\Options;
 use Poirot\Storage\StorageInterface;
 
-class FileStorage extends Entity
-    implements StorageInterface
+class ArrayFileStorage extends Entity
+    implements
+    StorageInterface,
+    OptionsProviderInterface
 {
     /**
      * @var string Storage Identity
@@ -24,6 +28,11 @@ class FileStorage extends Entity
     protected $loadedCachedData;
 
     /**
+     * @var Options
+     */
+    protected $options;
+
+    /**
      * Construct
      *
      */
@@ -38,14 +47,25 @@ class FileStorage extends Entity
     }
 
     /**
+     * Options Object
+     *
+     * @return Options
+     */
+    function options()
+    {
+        if (!$this->options)
+            $this->options = new Options(['storage_path' => '/tmp']);
+
+        return $this->options;
+    }
+
+    /**
      * Prepare Storage
      *
      * @return $this
      */
     function init()
     {
-        $this->loadDataFromFile();
-
         register_shutdown_function(array($this, 'writeDown'));
 
         $this->isInit = true;
@@ -105,13 +125,16 @@ class FileStorage extends Entity
      */
     function setIdent($identity)
     {
-        if ($this->ident !== null
-            && ($this->ident != $identity)
-        )
+        if ($this->ident != null && $this->ident == $identity)
+            // Nothing Changed
+            return $this;
+
+        if ($this->ident != null)
             // If Ident Change Write Down Current Data
             $this->writeDown();
 
         $this->ident = $identity;
+        $this->loadDataFromFile();
 
         return $this;
     }
@@ -146,6 +169,9 @@ class FileStorage extends Entity
         $file = $this->getStorageFilePath();
         if (file_exists($file))
             unlink($file);
+
+        foreach($this->keys() as $key)
+            $this->del($key);
     }
 
     /**
@@ -192,7 +218,7 @@ class FileStorage extends Entity
         if ($this->getIdent() === null || $this->getIdent() == '' )
             throw new \Exception('No Storage Identity Defined Yet!!');
 
-        $opt_directory = APP_DIR_APPLICATION;
+        $opt_directory = $this->options()->getStoragePath();
         $file = $opt_directory . DIRECTORY_SEPARATOR . $this->getIdent() . '.array.php';
 
         return $file;
