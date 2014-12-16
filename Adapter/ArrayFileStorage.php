@@ -33,6 +33,11 @@ class ArrayFileStorage extends Entity
     protected $options;
 
     /**
+     * @var EntityInterface
+     */
+    protected $meta;
+
+    /**
      * Construct
      *
      */
@@ -184,7 +189,10 @@ class ArrayFileStorage extends Entity
      */
     function meta()
     {
-        // TODO: Implement meta() method.
+        if (!$this->meta)
+            $this->meta = new Entity();
+
+        return $this->meta;
     }
 
     protected function initFile()
