@@ -82,7 +82,9 @@ class ArrayFileStorage extends Entity
      */
     public function writeDown()
     {
+	
         if (
+	    !$this->loadedCachedData ||
             array_intersect($this->loadedCachedData, $this->properties)
             == $this->properties
         )
