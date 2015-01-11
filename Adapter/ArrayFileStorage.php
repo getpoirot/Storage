@@ -6,7 +6,7 @@ class ArrayFileStorage extends AbstractStorage
     /**
      * @var array Loaded Data On Init
      */
-    protected $loadedCachedData;
+    protected $loadedCachedData = null;
 
     /**
      * @var FileStorage\Options
@@ -70,9 +70,8 @@ class ArrayFileStorage extends AbstractStorage
     public function writeDown()
     {
         if (
-	    !$this->loadedCachedData ||
-            array_intersect($this->loadedCachedData, $this->properties)
-            == $this->properties
+            (!is_array($this->loadedCachedData) && $this->loadedCachedData === null) // has not any data loaded
+            || @array_intersect($this->loadedCachedData, $this->properties) == $this->properties
         )
             // Nothing Have Changed
             return;
