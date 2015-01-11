@@ -29,9 +29,10 @@ class ArrayFileStorage extends AbstractStorage
     function options()
     {
         if (!$this->options)
-            $this->options = new FileStorage\Options(['storage_path' => '/tmp']);
-
-        $this->options()->setAdapter($this);
+            $this->options = new FileStorage\Options([
+                'storage_path' => '/tmp',
+                'adapter'      => $this
+            ]);
 
         return $this->options;
     }

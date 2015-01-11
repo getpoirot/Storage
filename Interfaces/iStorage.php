@@ -1,5 +1,5 @@
 <?php
-namespace Poirot\Storage;
+namespace Poirot\Storage\Interfaces;
 
 use Poirot\Core\Interfaces\EntityInterface;
 use Poirot\Storage\Adapter\AbstractOptions;

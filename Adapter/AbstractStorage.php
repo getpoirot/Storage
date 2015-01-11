@@ -4,7 +4,7 @@ namespace Poirot\Storage\Adapter;
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
 use Poirot\Core\Interfaces\OptionsProviderInterface;
-use Poirot\Storage\iStorage;
+use Poirot\Storage\Interfaces\iStorage;
 
 abstract class AbstractStorage extends Entity
     implements iStorage,
@@ -28,7 +28,11 @@ abstract class AbstractStorage extends Entity
     /**
      * Construct
      *
+     * - Options must passed to storage,
+     *   so we need to recognize identity
+     *
      * @param Array|AbstractOptions $options
+     *
      * @throws \Exception
      */
     public function __construct($options)
