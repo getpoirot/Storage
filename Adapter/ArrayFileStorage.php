@@ -1,65 +1,37 @@
 <?php
 namespace Poirot\Storage\Adapter;
 
-use Poirot\Core\Entity;
-use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Core\Interfaces\OptionsProviderInterface;
-use Poirot\Storage\Adapter\FileStorage\Options;
-use Poirot\Storage\StorageInterface;
-
-class ArrayFileStorage extends Entity
-    implements
-    StorageInterface,
-    OptionsProviderInterface
+class ArrayFileStorage extends AbstractStorage
 {
-    /**
-     * @var string Storage Identity
-     */
-    protected $ident;
-
-    /**
-     * @var boolean Is Initialized?
-     */
-    protected $isInit;
-
     /**
      * @var array Loaded Data On Init
      */
     protected $loadedCachedData;
 
     /**
-     * @var Options
+     * @var FileStorage\Options
      */
     protected $options;
 
     /**
-     * @var EntityInterface
+     * Constructor Init
      */
-    protected $meta;
-
-    /**
-     * Construct
-     *
-     */
-    public function __construct($ident = null)
+    function consIt()
     {
-        if ($ident !== null)
-            $this->setIdent($ident);
-
-        parent::__construct();
-
-        $this->init();
+        $this->prepare();
     }
 
     /**
      * Options Object
      *
-     * @return Options
+     * @return FileStorage\Options
      */
     function options()
     {
         if (!$this->options)
-            $this->options = new Options(['storage_path' => '/tmp']);
+            $this->options = new FileStorage\Options(['storage_path' => '/tmp']);
+
+        $this->options()->setAdapter($this);
 
         return $this->options;
     }
@@ -69,11 +41,25 @@ class ArrayFileStorage extends Entity
      *
      * @return $this
      */
-    function init()
+    function prepare()
     {
-        register_shutdown_function(array($this, 'writeDown'));
+        if ($this->isPrepared())
+            return $this;
 
-        $this->isInit = true;
+        register_shutdown_function(array($this, 'writeDown'));
+        $this->isPrepared = true;
+
+        return $this;
+    }
+
+    /**
+     * Is Initialized?
+     *
+     * @return boolean
+     */
+    function isPrepared()
+    {
+        return $this->isPrepared;
     }
 
     /**
@@ -82,7 +68,6 @@ class ArrayFileStorage extends Entity
      */
     public function writeDown()
     {
-	
         if (
 	    !$this->loadedCachedData ||
             array_intersect($this->loadedCachedData, $this->properties)
@@ -124,49 +109,6 @@ class ArrayFileStorage extends Entity
     }
 
     /**
-     * Set Storage Identity
-     *
-     * @param string $identity Storage Identity
-     *
-     * @return $this
-     */
-    function setIdent($identity)
-    {
-        if ($this->ident != null && $this->ident == $identity)
-            // Nothing Changed
-            return $this;
-
-        if ($this->ident != null)
-            // If Ident Change Write Down Current Data
-            $this->writeDown();
-
-        $this->ident = $identity;
-        $this->loadDataFromFile();
-
-        return $this;
-    }
-
-    /**
-     * Get Current Storage Identity
-     *
-     * @return string
-     */
-    function getIdent()
-    {
-        return $this->ident;
-    }
-
-    /**
-     * Is Initialized?
-     *
-     * @return boolean
-     */
-    function isInit()
-    {
-        return $this->isInit;
-    }
-
-    /**
      * Destroy Current Ident Entities
      *
      * @return void
@@ -181,22 +123,6 @@ class ArrayFileStorage extends Entity
             $this->del($key);
     }
 
-    /**
-     * Get Meta Data Entity Object
-     *
-     * - use to access meta extra data over storage,
-     *   basically used by storage decorators
-     *
-     * @return EntityInterface
-     */
-    function meta()
-    {
-        if (!$this->meta)
-            $this->meta = new Entity();
-
-        return $this->meta;
-    }
-
     protected function initFile()
     {
         $file = $this->getStorageFilePath();
@@ -205,7 +131,7 @@ class ArrayFileStorage extends Entity
             $this->toFile($file, array());
     }
 
-    protected function loadDataFromFile()
+    function loadDataFromFile()
     {
         $this->initFile();
 
@@ -225,11 +151,11 @@ class ArrayFileStorage extends Entity
      */
     protected function getStorageFilePath()
     {
-        if ($this->getIdent() === null || $this->getIdent() == '' )
+        if ($this->options()->getIdent() === null || $this->options()->getIdent() == '' )
             throw new \Exception('No Storage Identity Defined Yet!!');
 
         $opt_directory = $this->options()->getStoragePath();
-        $file = $opt_directory . DIRECTORY_SEPARATOR . $this->getIdent() . '.array.php';
+        $file = $opt_directory . DIRECTORY_SEPARATOR . $this->options()->getIdent() . '.array.php';
 
         return $file;
     }

@@ -3,94 +3,22 @@ namespace Poirot\Storage\Adapter;
 
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Storage\StorageInterface;
+use Poirot\Storage\iStorage;
 
-class SessionStorage implements StorageInterface
+class SessionStorage extends AbstractStorage
 {
-    /**
-     * @var string Identity
-     */
-    protected $ident;
-
-    /**
-     * @var boolean Is Initialized?
-     */
-    protected $isInit = false;
-
-    /**
-     * @var Entity Meta Data
-     */
-    protected $meta;
-
-    /**
-     * Construct
-     *
-     */
-    public function __construct()
-    {
-        $this->init();
-    }
-
-    /**
-     * Set Storage Identity
-     *
-     * @param string $identity Storage Identity
-     *
-     * @return $this
-     */
-    function setIdent($identity)
-    {
-        $this->ident = $identity;
-
-        session_id($this->ident);
-
-        return $this;
-    }
-
-    /**
-     * Get Current Storage Identity
-     *
-     * @return string
-     */
-    function getIdent()
-    {
-        if (!$this->ident) {
-            $this->ident = session_id();
-        }
-
-        return $this->ident;
-    }
-
     /**
      * Prepare Storage
      *
      * @throws \Exception
      * @return $this
      */
-    function init()
+    function prepare()
     {
         if (!$this->sessionExists())
             session_start();
 
-        $this->isInit = true;
-    }
-
-    /**
-     * Does a session exist and is it currently active?
-     *
-     * @return bool
-     */
-    protected function sessionExists()
-    {
-        if ( php_sapi_name() !== 'cli' ) {
-            if ( version_compare(phpversion(), '5.4.0', '>=') ) {
-                return session_status() === PHP_SESSION_ACTIVE ? true : false;
-            } else {
-                return session_id() === '' ? false : true;
-            }
-        }
-
-        return false;
+        $this->isPrepared = true;
     }
 
     /**
@@ -98,9 +26,9 @@ class SessionStorage implements StorageInterface
      *
      * @return boolean
      */
-    function isInit()
+    function isPrepared()
     {
-        return $this->isInit;
+        return $this->isPrepared;
     }
 
     /**
@@ -113,7 +41,7 @@ class SessionStorage implements StorageInterface
      */
     function set($key, $value)
     {
-        $this->checkEnvironment();
+        $this->prepare();
 
         $_SESSION[$key] = $value;
 
@@ -130,7 +58,7 @@ class SessionStorage implements StorageInterface
      */
     function get($key, $default = null)
     {
-        $this->checkEnvironment();
+        $this->prepare();
 
         $val = $default;
         if ($this->has($key))
@@ -148,7 +76,7 @@ class SessionStorage implements StorageInterface
      */
     function has($key)
     {
-        $this->checkEnvironment();
+        $this->prepare();
 
         return isset($_SESSION[$key]);
     }
@@ -162,7 +90,7 @@ class SessionStorage implements StorageInterface
      */
     function del($key)
     {
-        $this->checkEnvironment();
+        $this->prepare();
 
         unset($_SESSION[$key]);
 
@@ -176,7 +104,7 @@ class SessionStorage implements StorageInterface
      */
     function keys()
     {
-        $this->checkEnvironment();
+        $this->prepare();
 
         return array_keys($_SESSION);
     }
@@ -188,18 +116,9 @@ class SessionStorage implements StorageInterface
      */
     function destroy()
     {
-        $this->checkEnvironment();
+        $this->prepare();
 
         $_SESSION = [];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function checkEnvironment()
-    {
-        if (!$this->sessionExists())
-            throw new \Exception('No Session Exists.');
     }
 
     /**
@@ -216,6 +135,26 @@ class SessionStorage implements StorageInterface
             $this->meta = new Entity();
 
         return $this->meta;
+    }
+
+    // In Class Usage:
+
+    /**
+     * Does a session exist and is it currently active?
+     *
+     * @return bool
+     */
+    protected function sessionExists()
+    {
+        if ( php_sapi_name() !== 'cli' ) {
+            if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+                return session_status() === PHP_SESSION_ACTIVE ? true : false;
+            } else {
+                return session_id() === '' ? false : true;
+            }
+        }
+
+        return false;
     }
 }
  
