@@ -41,7 +41,7 @@ abstract class AbstractStorage extends Entity
             foreach($options->props()->writable as $opt)
                 $this->options()->{$opt} = $options->{$opt};
         elseif (is_array($options))
-            $this->options()->setFromArray($options);
+            $this->options()->fromArray($options);
         else
             throw new \Exception(sprintf(
                 'Constructor Except "Array" or Instanceof "AbstractOptions", but "%s" given.'
