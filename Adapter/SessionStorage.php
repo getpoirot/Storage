@@ -43,7 +43,8 @@ class SessionStorage extends AbstractStorage
     {
         $this->prepare();
 
-        $_SESSION[$key] = $value;
+        $ident = $this->options()->getIdent();
+        $_SESSION[$ident][$key] = $value;
 
         return $this;
     }
@@ -61,8 +62,9 @@ class SessionStorage extends AbstractStorage
         $this->prepare();
 
         $val = $default;
+        $ident = $this->options()->getIdent();
         if ($this->has($key))
-            $val = $_SESSION[$key];
+            $val = $_SESSION[$ident][$key];
 
         return $val;
     }
@@ -78,7 +80,8 @@ class SessionStorage extends AbstractStorage
     {
         $this->prepare();
 
-        return isset($_SESSION[$key]);
+        $ident = $this->options()->getIdent();
+        return isset($_SESSION[$ident]) && isset($_SESSION[$ident][$key]);
     }
 
     /**
@@ -92,7 +95,9 @@ class SessionStorage extends AbstractStorage
     {
         $this->prepare();
 
-        unset($_SESSION[$key]);
+        $ident = $this->options()->getIdent();
+        if ($this->has($key))
+            unset($_SESSION[$ident][$key]);
 
         return $this;
     }
@@ -106,7 +111,8 @@ class SessionStorage extends AbstractStorage
     {
         $this->prepare();
 
-        return array_keys($_SESSION);
+        $ident = $this->options()->getIdent();
+        return array_keys($_SESSION[$ident]);
     }
 
     /**
@@ -118,7 +124,8 @@ class SessionStorage extends AbstractStorage
     {
         $this->prepare();
 
-        $_SESSION = [];
+        $ident = $this->options()->getIdent();
+        unset($_SESSION[$ident]);
     }
 
     /**
@@ -157,4 +164,3 @@ class SessionStorage extends AbstractStorage
         return false;
     }
 }
- 
