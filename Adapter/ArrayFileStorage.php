@@ -48,6 +48,8 @@ class ArrayFileStorage extends AbstractStorage
             return $this;
 
         register_shutdown_function(array($this, 'writeDown'));
+        $this->loadDataFromFile();
+
         $this->isPrepared = true;
 
         return $this;
@@ -127,24 +129,41 @@ class ArrayFileStorage extends AbstractStorage
             $this->del($key);
     }
 
+    function loadDataFromFile()
+    {
+        $this->initFile();
+
+        $file = $this->getStorageFilePath();
+
+        set_error_handler(
+            function ($error, $message = '', $file = '', $line = 0) use ($file) {
+                throw new \RuntimeException(sprintf(
+                    'Error Reading File "%s": %s',
+                    $file, $message
+                ), $error);
+            }, E_ALL
+        );
+
+        try {
+            $data = include $file;
+        } catch (\Exception $e) {
+            restore_error_handler();
+            throw $e;
+        }
+        restore_error_handler();
+
+        foreach($data as $key => $val)
+            $this->set($key, $val);
+
+        $this->loadedCachedData = $this->properties;
+    }
+
     protected function initFile()
     {
         $file = $this->getStorageFilePath();
 
         if (!file_exists($file))
             $this->toFile($file, array());
-    }
-
-    function loadDataFromFile()
-    {
-        $this->initFile();
-
-        $file = $this->getStorageFilePath();
-        $data = include $file;
-        foreach($data as $key => $val)
-            $this->set($key, $val);
-
-        $this->loadedCachedData = $this->properties;
     }
 
     /**
