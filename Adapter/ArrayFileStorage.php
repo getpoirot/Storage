@@ -87,8 +87,6 @@ class ArrayFileStorage extends AbstractStorage
 
     protected function toFile($filename, array $data)
     {
-        $dataStr = "<?php\n". "return " . var_export($data, true) . ";\n";
-
         set_error_handler(
             function ($error, $message = '', $file = '', $line = 0) use ($filename) {
                 throw new \RuntimeException(sprintf(
@@ -98,7 +96,13 @@ class ArrayFileStorage extends AbstractStorage
             }, E_WARNING
         );
 
+        // check for directory tree
+        $filedir = dirname($filename);
+        if (!file_exists($filedir))
+            mkdir($filedir, 0777, true);
+
         try {
+            $dataStr = "<?php\n". "return " . var_export($data, true) . ";\n";
             file_put_contents($filename, $dataStr, LOCK_EX);
         } catch (\Exception $e) {
             restore_error_handler();
