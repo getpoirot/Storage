@@ -111,8 +111,12 @@ class SessionStorage extends AbstractStorage
     {
         $this->prepare();
 
+        $return = [];
         $ident = $this->options()->getIdent();
-        return array_keys($_SESSION[$ident]);
+        if (isset($_SESSION[$ident]))
+            $return = array_keys($_SESSION[$ident]);
+
+        return $return;
     }
 
     /**
