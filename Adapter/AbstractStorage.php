@@ -80,6 +80,16 @@ abstract class AbstractStorage extends Entity
     abstract function isPrepared();
 
     /**
+     * Output Conveyor Props. as desired manipulated data struct.
+     *
+     * @return array
+     */
+    function borrow()
+    {
+        return $this->getAs(new Entity($this));
+    }
+
+    /**
      * Get Meta Data Entity Object
      *
      * - use to access meta extra data over storage,
