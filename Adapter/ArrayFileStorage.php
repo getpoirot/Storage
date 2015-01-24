@@ -1,6 +1,8 @@
 <?php
 namespace Poirot\Storage\Adapter;
 
+use Poirot\Core\AbstractOptions;
+
 class ArrayFileStorage extends AbstractStorage
 {
     /**
@@ -19,22 +21,8 @@ class ArrayFileStorage extends AbstractStorage
     function consIt()
     {
         $this->prepare();
-    }
 
-    /**
-     * Options Object
-     *
-     * @return FileStorage\Options
-     */
-    function options()
-    {
-        if (!$this->options)
-            $this->options = new FileStorage\Options([
-                'storage_path' => '/tmp',
-                'adapter'      => $this
-            ]);
-
-        return $this->options;
+        $this->options()->setAdapter($this);
     }
 
     /**
@@ -181,5 +169,39 @@ class ArrayFileStorage extends AbstractStorage
         $file = $opt_directory . DIRECTORY_SEPARATOR . $this->options()->getIdent() . '.array.php';
 
         return $file;
+    }
+
+    /**
+     * Options Object
+     *
+     * @return FileStorage\Options
+     */
+    function options()
+    {
+        if (!$this->options)
+            $this->options = self::optionsIns();
+
+        return $this->options;
+    }
+
+    /**
+     * Get An Bare Options Instance
+     *
+     * ! it used on easy access to options instance
+     *   before constructing class
+     *   [php]
+     *      $opt = Filesystem::optionsIns();
+     *      $opt->setSomeOption('value');
+     *
+     *      $class = new Filesystem($opt);
+     *   [/php]
+     *
+     * @return FileStorage\Options
+     */
+    static function optionsIns()
+    {
+        return new FileStorage\Options([
+            'storage_path' => '/tmp',
+        ]);
     }
 }

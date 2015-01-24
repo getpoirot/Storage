@@ -1,9 +1,9 @@
 <?php
 namespace Poirot\Storage\Adapter;
 
+use Poirot\Core\AbstractOptions;
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Storage\iStorage;
 
 class SessionStorage extends AbstractStorage
 {

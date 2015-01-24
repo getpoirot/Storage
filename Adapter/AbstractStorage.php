@@ -60,9 +60,28 @@ abstract class AbstractStorage extends Entity
     function options()
     {
         if (!$this->options)
-            $this->options = new AbstractOptions();
+            $this->options = self::optionsIns();
 
         return $this->options;
+    }
+
+    /**
+     * Get An Bare Options Instance
+     *
+     * ! it used on easy access to options instance
+     *   before constructing class
+     *   [php]
+     *      $opt = Filesystem::optionsIns();
+     *      $opt->setSomeOption('value');
+     *
+     *      $class = new Filesystem($opt);
+     *   [/php]
+     *
+     * @return AbstractOptions
+     */
+    static function optionsIns()
+    {
+        return new AbstractOptions();
     }
 
     /**
