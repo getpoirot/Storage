@@ -16,6 +16,8 @@ interface iStorage extends EntityInterface
     /**
      * Destroy Current Ident Entities
      *
+     * - Ident relies on the options
+     *
      * @return void
      */
     function destroy();
