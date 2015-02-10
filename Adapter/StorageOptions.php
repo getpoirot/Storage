@@ -3,7 +3,7 @@ namespace Poirot\Storage\Adapter;
 
 use Poirot\Core\AbstractOptions as BaseOptions;
 
-class AbstractOptions extends BaseOptions
+class StorageOptions extends BaseOptions
 {
     /**
      * @var string

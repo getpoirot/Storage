@@ -2,30 +2,16 @@
 namespace Poirot\Storage\Interfaces;
 
 use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Storage\Adapter\AbstractOptions;
+use Poirot\Storage\Adapter\StorageOptions;
 
 interface iStorage extends EntityInterface
 {
     /**
      * Storage Options
      *
-     * @return AbstractOptions
+     * @return StorageOptions
      */
     function options();
-
-    /**
-     * Prepare Storage
-     *
-     * @return $this
-     */
-    function prepare();
-
-    /**
-     * Is Initialized?
-     *
-     * @return boolean
-     */
-    function isPrepared();
 
     /**
      * Destroy Current Ident Entities

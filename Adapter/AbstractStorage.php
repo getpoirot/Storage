@@ -11,17 +11,12 @@ abstract class AbstractStorage extends Entity
     OptionsProviderInterface
 {
     /**
-     * @var boolean Is Prepared?
-     */
-    protected $isPrepared = false;
-
-    /**
      * @var Entity Meta Data
      */
     protected $meta;
 
     /**
-     * @var AbstractOptions
+     * @var StorageOptions
      */
     protected $options;
 
@@ -31,13 +26,13 @@ abstract class AbstractStorage extends Entity
      * - Options must passed to storage,
      *   so we need to recognize identity
      *
-     * @param Array|AbstractOptions $options
+     * @param Array|StorageOptions $options
      *
      * @throws \Exception
      */
     public function __construct($options)
     {
-        if ($options instanceof AbstractOptions)
+        if ($options instanceof StorageOptions)
             foreach($options->props()->writable as $opt)
                 $this->options()->{$opt} = $options->{$opt};
         elseif (is_array($options))
@@ -55,7 +50,7 @@ abstract class AbstractStorage extends Entity
     /**
      * Storage Options
      *
-     * @return AbstractOptions
+     * @return StorageOptions
      */
     function options()
     {
@@ -77,26 +72,12 @@ abstract class AbstractStorage extends Entity
      *      $class = new Filesystem($opt);
      *   [/php]
      *
-     * @return AbstractOptions
+     * @return StorageOptions
      */
     static function optionsIns()
     {
-        return new AbstractOptions();
+        return new StorageOptions();
     }
-
-    /**
-     * Prepare Storage
-     *
-     * @return $this
-     */
-    abstract function prepare();
-
-    /**
-     * Is Initialized?
-     *
-     * @return boolean
-     */
-    abstract function isPrepared();
 
     /**
      * Output Conveyor Props. as desired manipulated data struct.

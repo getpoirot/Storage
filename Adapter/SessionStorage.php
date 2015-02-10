@@ -7,6 +7,8 @@ use Poirot\Core\Interfaces\EntityInterface;
 
 class SessionStorage extends AbstractStorage
 {
+    protected $isPrepared;
+
     /**
      * Prepare Storage
      *
