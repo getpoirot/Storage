@@ -16,7 +16,7 @@ abstract class AbstractStorage extends Entity
     protected $meta;
 
     /**
-     * @var StorageOptions
+     * @var StorageBaseOptions
      */
     protected $options;
 
@@ -26,13 +26,13 @@ abstract class AbstractStorage extends Entity
      * - Options must passed to storage,
      *   so we need to recognize identity
      *
-     * @param Array|StorageOptions $options
+     * @param Array|StorageBaseOptions $options
      *
      * @throws \Exception
      */
     public function __construct($options)
     {
-        if ($options instanceof StorageOptions)
+        if ($options instanceof StorageBaseOptions)
             foreach($options->props()->writable as $opt)
                 $this->options()->{$opt} = $options->{$opt};
         elseif (is_array($options))
@@ -50,7 +50,7 @@ abstract class AbstractStorage extends Entity
     /**
      * Storage Options
      *
-     * @return StorageOptions
+     * @return StorageBaseOptions
      */
     function options()
     {
@@ -72,11 +72,11 @@ abstract class AbstractStorage extends Entity
      *      $class = new Filesystem($opt);
      *   [/php]
      *
-     * @return StorageOptions
+     * @return StorageBaseOptions
      */
     static function optionsIns()
     {
-        return new StorageOptions();
+        return new StorageBaseOptions();
     }
 
     /**

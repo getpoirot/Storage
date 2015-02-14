@@ -2,14 +2,14 @@
 namespace Poirot\Storage\Interfaces;
 
 use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Storage\Adapter\StorageOptions;
+use Poirot\Storage\StorageBaseOptions;
 
 interface iStorage extends EntityInterface
 {
     /**
      * Storage Options
      *
-     * @return StorageOptions
+     * @return StorageBaseOptions
      */
     function options();
 

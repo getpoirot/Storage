@@ -2,9 +2,9 @@
 namespace Poirot\Storage\Adapter\ArrayFile;
 
 use Poirot\Storage\Adapter\ArrayFileStorage;
-use Poirot\Storage\StorageOptions;
+use Poirot\Storage\StorageBaseOptions;
 
-class ArrayFileOptions extends StorageOptions
+class ArrayFileOptions extends StorageBaseOptions
 {
     protected $storagePath;
 
