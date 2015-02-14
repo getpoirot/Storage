@@ -2,6 +2,7 @@
 namespace Poirot\Storage\Adapter;
 
 use Poirot\Core\AbstractOptions;
+use Poirot\Storage\AbstractStorage;
 
 class ArrayFileStorage extends AbstractStorage
 {

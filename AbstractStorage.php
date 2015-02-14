@@ -1,5 +1,5 @@
 <?php
-namespace Poirot\Storage\Adapter;
+namespace Poirot\Storage;
 
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;

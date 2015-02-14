@@ -4,6 +4,7 @@ namespace Poirot\Storage\Adapter;
 use Poirot\Core\AbstractOptions;
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
+use Poirot\Storage\AbstractStorage;
 
 class SessionStorage extends AbstractStorage
 {

@@ -1,8 +1,8 @@
 <?php
 namespace Poirot\Storage\Adapter\FileStorage;
 
-use Poirot\Storage\Adapter\StorageOptions;
 use Poirot\Storage\Adapter\ArrayFileStorage;
+use Poirot\Storage\StorageOptions;
 
 class FileStorageOptions extends StorageOptions
 {
@@ -16,7 +16,7 @@ class FileStorageOptions extends StorageOptions
     /**
      * @return mixed
      */
-    public function getStoragePath()
+    function getStoragePath()
     {
         return rtrim($this->storagePath, DIRECTORY_SEPARATOR);
     }
@@ -24,7 +24,7 @@ class FileStorageOptions extends StorageOptions
     /**
      * @param mixed $storagePath
      */
-    public function setStoragePath($storagePath)
+    function setStoragePath($storagePath)
     {
         $this->storagePath = $storagePath;
     }
