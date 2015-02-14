@@ -1,10 +1,10 @@
 <?php
-namespace Poirot\Storage\Adapter\FileStorage;
+namespace Poirot\Storage\Adapter\ArrayFile;
 
 use Poirot\Storage\Adapter\ArrayFileStorage;
 use Poirot\Storage\StorageOptions;
 
-class FileStorageOptions extends StorageOptions
+class ArrayFileOptions extends StorageOptions
 {
     protected $storagePath;
 

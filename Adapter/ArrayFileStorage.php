@@ -12,7 +12,7 @@ class ArrayFileStorage extends AbstractStorage
     protected $loadedCachedData = null;
 
     /**
-     * @var FileStorage\FileStorageOptions
+     * @var ArrayFile\ArrayFileOptions
      */
     protected $options;
 
@@ -177,7 +177,7 @@ class ArrayFileStorage extends AbstractStorage
     /**
      * Options Object
      *
-     * @return FileStorage\FileStorageOptions
+     * @return ArrayFile\ArrayFileOptions
      */
     function options()
     {
@@ -199,11 +199,11 @@ class ArrayFileStorage extends AbstractStorage
      *      $class = new Filesystem($opt);
      *   [/php]
      *
-     * @return FileStorage\FileStorageOptions
+     * @return ArrayFile\ArrayFileOptions
      */
     static function optionsIns()
     {
-        return new FileStorage\FileStorageOptions([
+        return new ArrayFile\ArrayFileOptions([
             'storage_path' => '/tmp',
         ]);
     }
