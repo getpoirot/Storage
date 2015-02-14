@@ -4,6 +4,7 @@ namespace Poirot\Storage\Adapter;
 use Poirot\Core\AbstractOptions;
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
+use Poirot\Core\Interfaces\iEntityPoirot;
 use Poirot\Storage\AbstractStorage;
 
 class SessionStorage extends AbstractStorage
@@ -18,20 +19,13 @@ class SessionStorage extends AbstractStorage
      */
     function prepare()
     {
+        if ($this->isPrepared)
+            return;
+
         if (!$this->sessionExists())
             session_start();
 
         $this->isPrepared = true;
-    }
-
-    /**
-     * Is Initialized?
-     *
-     * @return boolean
-     */
-    function isPrepared()
-    {
-        return $this->isPrepared;
     }
 
     /**
@@ -135,22 +129,6 @@ class SessionStorage extends AbstractStorage
         unset($_SESSION[$ident]);
     }
 
-    /**
-     * Get Meta Data Entity Object
-     *
-     * - use to access meta extra data over storage,
-     *   basically used by storage decorators
-     *
-     * @return EntityInterface
-     */
-    function meta()
-    {
-        if (!$this->meta)
-            $this->meta = new Entity();
-
-        return $this->meta;
-    }
-
     // In Class Usage:
 
     /**
@@ -169,5 +147,17 @@ class SessionStorage extends AbstractStorage
         }
 
         return false;
+    }
+
+    /**
+     * Output Conveyor Props. as desired manipulated data struct.
+     *
+     * @return array
+     */
+    function borrow()
+    {
+        $ident = $this->options()->getIdent();
+
+        return $_SESSION[$ident];
     }
 }
