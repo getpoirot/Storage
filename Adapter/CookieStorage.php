@@ -80,20 +80,7 @@ class CookieStorage extends AbstractStorage
         $ident = $this->options()->getIdent();
         $key   = "{$ident}[{$key}]";
 
-        $r = setcookie(
-            $key
-            , serialize($value)
-            , $this->options()->getLifetime()
-            , $this->options()->getPath()
-            , $this->options()->getDomain()
-            , $this->options()->getSecure()
-            , $this->options()->getHttpOnly()
-        );
-
-        if (!$r)
-            throw new \Exception(
-                'Unexpected error was happen, cant set cookie.'
-            );
+        $this->setCookie($key, $value);
 
         return $this;
     }
@@ -133,6 +120,18 @@ class CookieStorage extends AbstractStorage
      }
 
     /**
+     * Has Entity With key?
+     *
+     * @param string $key Entity Key
+     *
+     * @return boolean
+     */
+    function has($key)
+    {
+        return array_key_exists($key, $this->properties);
+    }
+
+    /**
      * Destroy Current Ident Entities
      *
      * - Ident relies on the options
@@ -150,13 +149,26 @@ class CookieStorage extends AbstractStorage
          * This is internally achieved by setting value to 'deleted' and expiration
          * time to one year in past.
          */
+
+        $this->setCookie($this->options()->getIdent(), null, -2628000);
+    }
+
+    protected function setCookie($key, $value, $lifetime = null)
+    {
         $currLifetime = $this->options()->getLifetime();
-        $this->options()->setLifetime(-2628000);
+
+        if ($lifetime === null)
+            $lifetime = $this->options()->getLifetime();
+        else
+            $this->options()->setLifetime($lifetime);
+
+        if (!is_string($value) || !is_scalar($value))
+            $value = serialize($value);
 
         $r = setcookie(
-            $this->options()->getIdent()
-            , null
-            , $this->options()->getLifetime()
+            $key
+            , $value
+            , $lifetime
             , $this->options()->getPath()
             , $this->options()->getDomain()
             , $this->options()->getSecure()
