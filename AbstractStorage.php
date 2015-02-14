@@ -3,10 +3,11 @@ namespace Poirot\Storage;
 
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
+use Poirot\Core\Interfaces\iEntityPoirot;
 use Poirot\Core\Interfaces\OptionsProviderInterface;
 use Poirot\Storage\Interfaces\iStorage;
 
-abstract class AbstractStorage extends Entity
+abstract class AbstractStorage
     implements iStorage,
     OptionsProviderInterface
 {
@@ -42,9 +43,6 @@ abstract class AbstractStorage extends Entity
                 'Constructor Except "Array" or Instanceof "AbstractOptions", but "%s" given.'
                 , is_object($options) ? get_class($options) : gettype($options)
             ));
-
-        parent::__construct(); // To build default properties
-        // call consIt() by entity
     }
 
     /**
@@ -59,6 +57,51 @@ abstract class AbstractStorage extends Entity
 
         return $this->options;
     }
+
+    /**
+     * Set Entity
+     *
+     * @param string $key   Entity Key
+     * @param mixed  $value Entity Value
+     *
+     * @return $this
+     */
+    abstract function set($key, $value);
+
+    /**
+     * Get Entity Value
+     *
+     * @param string $key     Entity Key
+     * @param null   $default Default If Not Value/Key Exists
+     *
+     * @return mixed
+     */
+    abstract function get($key, $default = null);
+
+    /**
+     * Has Entity With key?
+     *
+     * @param string $key Entity Key
+     *
+     * @return boolean
+     */
+    abstract function has($key);
+
+    /**
+     * Delete Entity With Key
+     *
+     * @param string $key Entity Key
+     *
+     * @return $this
+     */
+    abstract function del($key);
+
+    /**
+     * Get Entity Props. Keys
+     *
+     * @return array
+     */
+    abstract function keys();
 
     /**
      * Get An Bare Options Instance
@@ -80,14 +123,59 @@ abstract class AbstractStorage extends Entity
     }
 
     /**
+     * Set Properties
+     *
+     * - by deleting existence properties
+     *
+     * @param iEntityPoirot $entity
+     *
+     * @return $this
+     */
+    function setFrom(iEntityPoirot $entity)
+    {
+        foreach ($this->keys() as $key)
+            // Delete All Currently Properties
+            $this->del($key);
+
+        $this->merge($entity);
+
+        return $this;
+    }
+
+    /**
+     * Merge/Set Data With Entity
+     *
+     * @param iEntityPoirot $entity Merge Entity
+     *
+     * @return $this
+     */
+    function merge(iEntityPoirot $entity)
+    {
+        foreach($entity->keys() as $key)
+            $this->set($key, $entity->get($key));
+
+        return $this;
+    }
+
+    /**
+     * Get a copy of properties as hydrate structure
+     *
+     * @param iEntityPoirot $entity Entity
+     *
+     * @return mixed
+     */
+    function getAs(iEntityPoirot $entity)
+    {
+        return $entity->setFrom($this)
+            ->borrow();
+    }
+
+    /**
      * Output Conveyor Props. as desired manipulated data struct.
      *
      * @return array
      */
-    function borrow()
-    {
-        return $this->getAs(new Entity($this));
-    }
+    abstract function borrow();
 
     /**
      * Get Meta Data Entity Object
