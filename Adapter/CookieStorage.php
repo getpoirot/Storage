@@ -15,8 +15,11 @@ use Poirot\Storage\AbstractStorage;
 class CookieStorage extends AbstractStorage
 {
     use EntityTrait {
-        set as protected _t__set;
-        get as protected _t__get;
+        set    as protected _t__set;
+        get    as protected _t__get;
+        del    as protected _t__del;
+        has    as protected _t__has;
+        borrow as protected _t_borrow;
     }
 
     /**
@@ -108,13 +111,16 @@ class CookieStorage extends AbstractStorage
      */
      function get($key, $default = null)
      {
-         $ident = $this->options()->getIdent();
-         if (isset($_COOKIE[$ident])) {
-             // get key value from cookie
-             $return = unserialize($_COOKIE[$ident][$key]);
-         } else {
+         if ($this->_t__has($key)) {
              $return = $this->_t__get($key, $default);
+         } else {
+             $ident = $this->options()->getIdent();
+             if (isset($_COOKIE[$ident]) && isset($_COOKIE[$ident][$key]))
+                 // get key value from cookie
+                 $return = unserialize($_COOKIE[$ident][$key]);
          }
+
+         $return = (isset($return)) ? $return : $default;
 
          return $return;
      }
@@ -128,7 +134,7 @@ class CookieStorage extends AbstractStorage
      */
     function has($key)
     {
-        return array_key_exists($key, $this->properties);
+        return array_key_exists($key, $this->borrow());
     }
 
     /**
@@ -149,21 +155,93 @@ class CookieStorage extends AbstractStorage
          * This is internally achieved by setting value to 'deleted' and expiration
          * time to one year in past.
          */
+        foreach($this->keys() as $prop)
+            $this->del($prop);
 
         $this->setCookie($this->options()->getIdent(), null, -2628000);
+
+        // Delete for current request:
+
+        $ident = $this->options()->getIdent();
+        unset($_COOKIE[$ident]);
+
+        $this->properties = [];
+    }
+
+    /**
+     * Delete a property
+     *
+     * @param string $prop Property
+     *
+     * @return $this
+     */
+    public function del($prop)
+    {
+        $this->_t__del($prop);
+
+        $ident = $this->options()->getIdent();
+        if (isset($_COOKIE[$ident]) && isset($_COOKIE[$ident][$prop])) {
+            $key   = "{$ident}[{$prop}]";
+            $this->setCookie($key, null, -2628000);
+
+            unset($_COOKIE[$ident][$prop]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get All Properties Keys
+     *
+     * @return array
+     */
+    public function keys()
+    {
+        return array_keys($this->borrow());
+    }
+
+    /**
+     * Output Conveyor Props. as desired manipulated data struct.
+     *
+     * ! Be Aware of the situation for classes that extend Entity
+     *   and maybe have stored original properties in the other way
+     *   instead of $this->properties in exp. for session storage,
+     *   so i prefer use:
+     *   [code]
+     *      return $this->getAs(new Entity($this));
+     *   [/code]
+     *
+     * @return mixed
+     */
+    public function borrow()
+    {
+        $cArray = [];
+        $ident = $this->options()->getIdent();
+        if (isset($_COOKIE[$ident]))
+            foreach(array_keys($_COOKIE[$ident]) as $prop)
+                $cArray[$prop] = $this->get($prop);
+
+        $cArray = array_merge(
+            $cArray
+            , $this->_t_borrow()
+        );
+
+        return $cArray;
     }
 
     protected function setCookie($key, $value, $lifetime = null)
     {
+        if (is_bool($value))
+            $value = (boolean) $value;
+        elseif ($value !== null)
+            $value = serialize($value);
+
         $currLifetime = $this->options()->getLifetime();
 
         if ($lifetime === null)
             $lifetime = $this->options()->getLifetime();
         else
             $this->options()->setLifetime($lifetime);
-
-        if (!is_string($value) || !is_scalar($value))
-            $value = serialize($value);
 
         $r = setcookie(
             $key
