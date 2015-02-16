@@ -74,8 +74,6 @@ class CookieStorage extends AbstractStorage
      */
     function set($key, $value)
     {
-        $this->checkRestriction();
-
         // store as entity property:
         $this->_t__set($key, $value);
 
@@ -87,19 +85,6 @@ class CookieStorage extends AbstractStorage
 
         return $this;
     }
-
-        /**
-         * Check Cookie Protocol Restriction
-         *
-         * @throws \Exception
-         */
-        protected function checkRestriction()
-        {
-            if (headers_sent())
-                throw new \Exception(
-                    'Headers was sent, cookies must be sent before any output from your script.'
-                );
-        }
 
     /**
      * Get Entity Value
@@ -231,6 +216,8 @@ class CookieStorage extends AbstractStorage
 
     protected function setCookie($key, $value, $lifetime = null)
     {
+        $this->checkRestriction();
+
         if (is_bool($value))
             $value = (boolean) $value;
         elseif ($value !== null)
@@ -243,7 +230,7 @@ class CookieStorage extends AbstractStorage
         else
             $this->options()->setLifetime($lifetime);
 
-        $r = setcookie(
+        $r = @setcookie(
             $key
             , $value
             , $lifetime
@@ -259,6 +246,19 @@ class CookieStorage extends AbstractStorage
             );
 
         $this->options()->setLifetime($currLifetime);
+    }
+
+    /**
+     * Check Cookie Protocol Restriction
+     *
+     * @throws \Exception
+     */
+    protected function checkRestriction()
+    {
+        if (headers_sent())
+            throw new \Exception(
+                'Headers was sent, cookies must be sent before any output from your script.'
+            );
     }
 }
  
