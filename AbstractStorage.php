@@ -3,12 +3,12 @@ namespace Poirot\Storage;
 
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Core\Interfaces\iEntityPoirot;
+use Poirot\Core\Interfaces\iPoirotEntity;
 use Poirot\Core\Interfaces\OptionsProviderInterface;
-use Poirot\Storage\Interfaces\iStorage;
+use Poirot\Storage\Interfaces\iStorageEntity;
 
 abstract class AbstractStorage
-    implements iStorage,
+    implements iStorageEntity,
     OptionsProviderInterface
 {
     /**
@@ -127,11 +127,11 @@ abstract class AbstractStorage
      *
      * - by deleting existence properties
      *
-     * @param iEntityPoirot $entity
+     * @param iPoirotEntity $entity
      *
      * @return $this
      */
-    function setFrom(iEntityPoirot $entity)
+    function setFrom(iPoirotEntity $entity)
     {
         foreach ($this->keys() as $key)
             // Delete All Currently Properties
@@ -145,11 +145,11 @@ abstract class AbstractStorage
     /**
      * Merge/Set Data With Entity
      *
-     * @param iEntityPoirot $entity Merge Entity
+     * @param iPoirotEntity $entity Merge Entity
      *
      * @return $this
      */
-    function merge(iEntityPoirot $entity)
+    function merge(iPoirotEntity $entity)
     {
         foreach($entity->keys() as $key)
             $this->set($key, $entity->get($key));
@@ -160,11 +160,11 @@ abstract class AbstractStorage
     /**
      * Get a copy of properties as hydrate structure
      *
-     * @param iEntityPoirot $entity Entity
+     * @param iPoirotEntity $entity Entity
      *
      * @return mixed
      */
-    function getAs(iEntityPoirot $entity)
+    function getAs(iPoirotEntity $entity)
     {
         return $entity->setFrom($this)
             ->borrow();

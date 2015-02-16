@@ -2,10 +2,10 @@
 namespace Poirot\Storage\Interfaces;
 
 use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Core\Interfaces\iEntityPoirot;
+use Poirot\Core\Interfaces\iPoirotEntity;
 use Poirot\Storage\StorageBaseOptions;
 
-interface iStorage extends iEntityPoirot
+interface iStorageEntity extends iPoirotEntity
 {
     /**
      * Storage Options
