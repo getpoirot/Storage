@@ -22,10 +22,21 @@ class ArrayFileStorage extends AbstractStorage
     protected $isPrepared;
 
     /**
-     * Constructor Init
+     * note: Avoid Trait Construct Collide
+     *
+     * Construct
+     *
+     * - Options must passed to storage,
+     *   so we need to recognize identity
+     *
+     * @param Array|Cookie\CookieOptions $options
+     *
+     * @throws \Exception
      */
-    function consIt()
+    function __construct($options)
     {
+        parent::__construct($options);
+
         $this->prepare();
 
         $this->options()->setAdapter($this);
