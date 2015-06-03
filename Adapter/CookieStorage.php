@@ -56,22 +56,21 @@ class CookieStorage extends AbstractStorage
     }
 
     /**
-     * Set Entity
+     * Set Property with value
      *
-     * @param string $key Entity Key
-     * @param mixed $value Entity Value
+     * @param string $prop  Property
+     * @param mixed  $value Value
      *
-     * @throws \Exception
      * @return $this
      */
-    function set($key, $value)
+    function set($prop, $value = '__not_set_value__')
     {
         // store as entity property:
-        parent::set($key, $value);
+        parent::set($prop, $value);
 
         // store in cookie:
         $ident = $this->options()->getIdent();
-        $key   = "{$ident}[{$key}]";
+        $key   = "{$ident}[{$prop}]";
 
         $this->setCookie($key, $value);
 
@@ -79,22 +78,24 @@ class CookieStorage extends AbstractStorage
     }
 
     /**
-     * Get Entity Value
+     * Get Property
+     * - throw exception if property not found and default get not set
      *
-     * @param string $key     Entity Key
-     * @param null   $default Default If Not Value/Key Exists
+     * @param string     $prop    Property name
+     * @param null|mixed $default Default Value if not exists
      *
+     * @throws \Exception
      * @return mixed
      */
-     function get($key, $default = null)
+    function get($prop, $default = '__not_set_value__')
      {
-         if (parent::has($key)) {
-             $return = parent::get($key, $default);
+         if (parent::has($prop)) {
+             $return = parent::get($prop, $default);
          } else {
              $ident = $this->options()->getIdent();
-             if (isset($_COOKIE[$ident]) && isset($_COOKIE[$ident][$key]))
+             if (isset($_COOKIE[$ident]) && isset($_COOKIE[$ident][$prop]))
                  // get key value from cookie
-                 $return = unserialize($_COOKIE[$ident][$key]);
+                 $return = unserialize($_COOKIE[$ident][$prop]);
          }
 
          $return = (isset($return)) ? $return : $default;
@@ -103,15 +104,15 @@ class CookieStorage extends AbstractStorage
      }
 
     /**
-     * Has Entity With key?
+     * Has Property
      *
-     * @param string $key Entity Key
+     * @param string $prop Property
      *
      * @return boolean
      */
-    function has($key)
+    function has($prop)
     {
-        return array_key_exists($key, $this->borrow());
+        return array_key_exists($prop, $this->borrow());
     }
 
     /**
