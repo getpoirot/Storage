@@ -27,72 +27,74 @@ class SessionStorage extends AbstractStorage
     }
 
     /**
-     * Set Entity
+     * Set Property with value
      *
-     * @param string $key Entity Key
-     * @param mixed $value Entity Value
+     * @param string $prop  Property
+     * @param mixed  $value Value
      *
      * @return $this
      */
-    function set($key, $value)
+    function set($prop, $value = '__not_set_value__')
     {
         $this->prepare();
 
         $ident = $this->options()->getIdent();
-        $_SESSION[$ident][$key] = $value;
+        $_SESSION[$ident][$prop] = $value;
 
         return $this;
     }
 
     /**
-     * Get Entity Value
+     * Get Property
+     * - throw exception if property not found and default get not set
      *
-     * @param string $key Entity Key
-     * @param null $default Default If Not Value/Key Exists
+     * @param string     $prop    Property name
+     * @param null|mixed $default Default Value if not exists
      *
+     * @throws \Exception
      * @return mixed
      */
-    function get($key, $default = null)
+    function get($prop, $default = '__not_set_value__')
     {
         $this->prepare();
 
         $val = $default;
         $ident = $this->options()->getIdent();
-        if ($this->has($key))
-            $val = $_SESSION[$ident][$key];
+        if ($this->has($prop))
+            $val = $_SESSION[$ident][$prop];
 
         return $val;
     }
 
     /**
-     * Has Entity With key?
+     * Has Property
      *
-     * @param string $key Entity Key
+     * @param string $prop Property
      *
      * @return boolean
      */
-    function has($key)
+    function has($prop)
     {
         $this->prepare();
 
         $ident = $this->options()->getIdent();
-        return isset($_SESSION[$ident]) && isset($_SESSION[$ident][$key]);
+        return isset($_SESSION[$ident]) && isset($_SESSION[$ident][$prop]);
     }
 
     /**
-     * Delete Entity With Key
+     * Delete a property
      *
-     * @param string $key Entity Key
+     * @param string $prop Property
      *
      * @return $this
      */
-    function del($key)
+    function del($prop)
     {
         $this->prepare();
 
         $ident = $this->options()->getIdent();
-        if ($this->has($key))
-            unset($_SESSION[$ident][$key]);
+        if ($this->has($prop))
+            unset($_SESSION[$ident][$prop]);
 
         return $this;
     }
