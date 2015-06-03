@@ -87,60 +87,6 @@ abstract class AbstractStorage
         return new StorageBaseOptions();
     }
 
-    // Implement Data:
-
-    /**
-     * Set Entity
-     *
-     * @param string $key   Entity Key
-     * @param mixed  $value Entity Value
-     *
-     * @return $this
-     */
-    abstract function set($key, $value);
-
-    /**
-     * Get Entity Value
-     *
-     * @param string $key     Entity Key
-     * @param null   $default Default If Not Value/Key Exists
-     *
-     * @return mixed
-     */
-    abstract function get($key, $default = null);
-
-    /**
-     * Has Entity With key?
-     *
-     * @param string $key Entity Key
-     *
-     * @return boolean
-     */
-    abstract function has($key);
-
-    /**
-     * Delete Entity With Key
-     *
-     * @param string $key Entity Key
-     *
-     * @return $this
-     */
-    abstract function del($key);
-
-    /**
-     * Get Entity Props. Keys
-     *
-     * @return array
-     */
-    abstract function keys();
-
-    /**
-     * Output Conveyor Props. as desired manipulated data struct.
-     *
-     * @return array
-     */
-    abstract function borrow();
-
     // Implement Meta Provider:
 
     /**

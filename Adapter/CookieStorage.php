@@ -14,14 +14,6 @@ use Poirot\Storage\AbstractStorage;
  */
 class CookieStorage extends AbstractStorage
 {
-    use EntityTrait {
-        set    as protected _t__set;
-        get    as protected _t__get;
-        del    as protected _t__del;
-        has    as protected _t__has;
-        borrow as protected _t_borrow;
-    }
-
     /**
      * @var Cookie\CookieOptions
      */
@@ -75,7 +67,7 @@ class CookieStorage extends AbstractStorage
     function set($key, $value)
     {
         // store as entity property:
-        $this->_t__set($key, $value);
+        parent::set($key, $value);
 
         // store in cookie:
         $ident = $this->options()->getIdent();
@@ -96,8 +88,8 @@ class CookieStorage extends AbstractStorage
      */
      function get($key, $default = null)
      {
-         if ($this->_t__has($key)) {
-             $return = $this->_t__get($key, $default);
+         if (parent::has($key)) {
+             $return = parent::get($key, $default);
          } else {
              $ident = $this->options()->getIdent();
              if (isset($_COOKIE[$ident]) && isset($_COOKIE[$ident][$key]))
@@ -162,7 +154,7 @@ class CookieStorage extends AbstractStorage
      */
     public function del($prop)
     {
-        $this->_t__del($prop);
+        parent::del($prop);
 
         $ident = $this->options()->getIdent();
         if (isset($_COOKIE[$ident]) && isset($_COOKIE[$ident][$prop])) {
@@ -208,7 +200,7 @@ class CookieStorage extends AbstractStorage
 
         $cArray = array_merge(
             $cArray
-            , $this->_t_borrow()
+            , parent::borrow()
         );
 
         return $cArray;
