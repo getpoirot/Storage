@@ -5,12 +5,20 @@ use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
 use Poirot\Core\Interfaces\iPoirotEntity;
 use Poirot\Core\Interfaces\OptionsProviderInterface;
+use Poirot\Core\Traits\EntityTrait;
 use Poirot\Storage\Interfaces\iStorageEntity;
 
+/**
+ * TODO class extend AbstractOption and data entity as object Storage::Data()->setData()|->set('dffdf', 'sdssd');
+ * // it seems much more better and reliable
+ * // class build with options, and data set through data gateway
+ */
 abstract class AbstractStorage
     implements iStorageEntity,
     OptionsProviderInterface
 {
+    use EntityTrait;
+
     /**
      * @var Entity Meta Data
      */
@@ -45,6 +53,8 @@ abstract class AbstractStorage
             ));
     }
 
+    // Implement Options Provider:
+
     /**
      * Storage Options
      *
@@ -57,6 +67,27 @@ abstract class AbstractStorage
 
         return $this->options;
     }
+
+    /**
+     * Get An Bare Options Instance
+     *
+     * ! it used on easy access to options instance
+     *   before constructing class
+     *   [php]
+     *      $opt = Filesystem::optionsIns();
+     *      $opt->setSomeOption('value');
+     *
+     *      $class = new Filesystem($opt);
+     *   [/php]
+     *
+     * @return StorageBaseOptions
+     */
+    static function optionsIns()
+    {
+        return new StorageBaseOptions();
+    }
+
+    // Implement Data:
 
     /**
      * Set Entity
@@ -104,78 +135,13 @@ abstract class AbstractStorage
     abstract function keys();
 
     /**
-     * Get An Bare Options Instance
-     *
-     * ! it used on easy access to options instance
-     *   before constructing class
-     *   [php]
-     *      $opt = Filesystem::optionsIns();
-     *      $opt->setSomeOption('value');
-     *
-     *      $class = new Filesystem($opt);
-     *   [/php]
-     *
-     * @return StorageBaseOptions
-     */
-    static function optionsIns()
-    {
-        return new StorageBaseOptions();
-    }
-
-    /**
-     * Set Properties
-     *
-     * - by deleting existence properties
-     *
-     * @param iPoirotEntity $entity
-     *
-     * @return $this
-     */
-    function setFrom(iPoirotEntity $entity)
-    {
-        foreach ($this->keys() as $key)
-            // Delete All Currently Properties
-            $this->del($key);
-
-        $this->merge($entity);
-
-        return $this;
-    }
-
-    /**
-     * Merge/Set Data With Entity
-     *
-     * @param iPoirotEntity $entity Merge Entity
-     *
-     * @return $this
-     */
-    function merge(iPoirotEntity $entity)
-    {
-        foreach($entity->keys() as $key)
-            $this->set($key, $entity->get($key));
-
-        return $this;
-    }
-
-    /**
-     * Get a copy of properties as hydrate structure
-     *
-     * @param iPoirotEntity $entity Entity
-     *
-     * @return mixed
-     */
-    function getAs(iPoirotEntity $entity)
-    {
-        return $entity->setFrom($this)
-            ->borrow();
-    }
-
-    /**
      * Output Conveyor Props. as desired manipulated data struct.
      *
      * @return array
      */
     abstract function borrow();
+
+    // Implement Meta Provider:
 
     /**
      * Get Meta Data Entity Object
