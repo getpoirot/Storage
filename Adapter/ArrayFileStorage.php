@@ -7,8 +7,6 @@ use Poirot\Storage\AbstractStorage;
 
 class ArrayFileStorage extends AbstractStorage
 {
-    use EntityTrait;
-
     /**
      * @var array Loaded Data On Init
      */
