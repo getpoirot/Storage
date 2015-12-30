@@ -4,7 +4,7 @@ namespace Poirot\Storage\Gateway;
 use Poirot\Core\AbstractOptions;
 use Poirot\Core\ErrorStack;
 
-class ArrayFileStorage extends MemoryGateway
+class ArrayFileGateway extends MemoryGateway
 {
     protected $isPrepared = false;
     /** @var array Loaded Data On Init */
