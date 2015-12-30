@@ -8,7 +8,7 @@ class ArrayFileGateway extends MemoryGateway
 {
     protected $isPrepared = false;
     /** @var array Loaded Data On Init */
-    protected $__loadedData = null;
+    protected $__loadedDataState = null;
 
     // Options
     protected $dirPath;
@@ -115,12 +115,11 @@ class ArrayFileGateway extends MemoryGateway
      */
     protected function __writeDown()
     {
-        if (
-            (!is_array($this->__loadedData) && $this->__loadedData === null) // has not any data loaded
-            || @array_intersect($this->__loadedData, $this->toArray()) == $this->toArray()
-        )
-            // Nothing Have Changed
-            return;
+        if (is_array($this->__loadedDataState)) {
+            if (array_intersect_assoc($this->__loadedDataState, $this->toArray()) == $this->toArray())
+                // Nothing Have Changed
+                return;
+        }
 
         $this->save();
     }
@@ -137,7 +136,7 @@ class ArrayFileGateway extends MemoryGateway
             throw $exception;
 
         $this->from($data);
-        $this->__loadedData = $data;
+        $this->__loadedDataState = $data;
     }
 
     /**
