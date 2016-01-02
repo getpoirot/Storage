@@ -81,6 +81,10 @@ class BaseGateway extends BuilderSetter implements iStorageGateway
 
     protected function &attainDataArrayObject()
     {
-        return $this->properties[$this->getRealm()];
+        $realm = $this->getRealm();
+        if (!isset($this->properties[$realm]))
+            $this->properties[$realm] = [];
+
+        return $this->properties[$realm];
     }
 }
