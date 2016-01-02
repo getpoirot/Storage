@@ -8,6 +8,17 @@ class SessionData extends BaseData
     /** @var boolean */
     protected $isPrepared = false;
 
+    /**
+     * Destroy Current Realm Data Source
+     *
+     * @return void
+     */
+    function destroy()
+    {
+        $data = &$this->attainDataArrayObject();
+        unset($data);
+        parent::destroy();
+    }
 
     // ...
 
