@@ -70,6 +70,11 @@ class ArrayFileGateway extends MemoryGateway
 
         ErrorStack::handleError(E_ALL);
         ##  \\\\\
+        ### check for directory tree
+        $dirPath = dirname($file);
+        if (!file_exists($dirPath))
+            mkdir($dirPath, 0777, true);
+
         $dataStr = "<?php\n". "return " . var_export($data, true) . ";\n";
         file_put_contents($file, $dataStr, LOCK_EX);
         ##  /////
@@ -103,9 +108,13 @@ class ArrayFileGateway extends MemoryGateway
             $self->__writeDown();
         });
 
-        $this->__importData();
-
         $this->isPrepared = true;
+
+        // ...
+
+        ## import data need attain object and its prepare object again
+        ## move after prepared flag to avoid callback recursion
+        $this->__importData();
         return $this;
     }
 
@@ -115,11 +124,11 @@ class ArrayFileGateway extends MemoryGateway
      */
     protected function __writeDown()
     {
-        if (is_array($this->__loadedDataState)) {
-            if (array_intersect_assoc($this->__loadedDataState, $this->toArray()) == $this->toArray())
-                // Nothing Have Changed
-                return;
-        }
+        if (
+            @array_intersect_assoc($this->__loadedDataState, $this->toArray()) == $this->toArray()
+        )
+            // Nothing Have Changed
+            return;
 
         $this->save();
     }
@@ -127,10 +136,15 @@ class ArrayFileGateway extends MemoryGateway
     function __importData()
     {
         $file = $this->__getFilePath();
+        if (!file_exists($file))
+            ## nothing to import, no data written yet!
+            return;
 
         ErrorStack::handleError(E_ALL);
         ##  \\\\\
         $data = include $file;
+        if (!is_array($data))
+            throw new \Exception('Error Data Structure, it must be array.');
         ##  /////
         if ($exception = ErrorStack::handleDone())
             throw $exception;
@@ -152,19 +166,6 @@ class ArrayFileGateway extends MemoryGateway
 
         $opt_directory = $this->getDirPath();
         $file = $opt_directory . DIRECTORY_SEPARATOR . $this->getRealm() . '.array.php';
-
-        ErrorStack::handleError(E_ALL);
-        ## \\\\\
-        ### check for directory tree
-        $dirPath = dirname($file);
-        if (!file_exists($dirPath))
-            mkdir($dirPath, 0777, true);
-        ### check file existence
-        if (!file_exists($file))
-            file_put_contents($file, '');
-        ##  /////
-        if ($exception = ErrorStack::handleDone())
-            throw $exception;
 
         return $file;
     }
