@@ -5,9 +5,9 @@ use Poirot\Core\BuilderSetterTrait;
 use Poirot\Core\Entity;
 use Poirot\Core\Interfaces\EntityInterface;
 use Poirot\Core\Interfaces\iDataField;
-use Poirot\Storage\Adapter\MemoryGateway;
+use Poirot\Storage\Gateway\MemoryData;
 use Poirot\Storage\Interfaces\iStorage;
-use Poirot\Storage\Interfaces\iStorageGateway;
+use Poirot\Storage\Interfaces\iStorageData;
 
 class Storage implements iStorage
 {
@@ -15,19 +15,19 @@ class Storage implements iStorage
 
     /** @var iDataField Meta Data */
     protected $meta;
-    /** @var iStorageGateway */
+    /** @var iStorageData */
     protected $gateway;
 
 
     /**
      * Data Gateway
      *
-     * @return iStorageGateway
+     * @return iStorageData
      */
-    function gateway()
+    function data()
     {
         if (!$this->gateway)
-            $this->gateway = new MemoryGateway;
+            $this->gateway = new MemoryData;
 
         return $this->gateway;
     }
@@ -38,11 +38,11 @@ class Storage implements iStorage
     /**
      * Set Data Gateway
      *
-     * @param iStorageGateway $gateway
+     * @param iStorageData $gateway
      *
      * @return $this
      */
-    function setGateway(iStorageGateway $gateway)
+    function setDataGateway(iStorageData $gateway)
     {
         $this->gateway = $gateway;
         return $this;

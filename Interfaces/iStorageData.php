@@ -3,7 +3,7 @@ namespace Poirot\Storage\Interfaces;
 
 use Poirot\Core\Interfaces\iPoirotEntity;
 
-interface iStorageGateway extends iPoirotEntity
+interface iStorageData extends iPoirotEntity
 {
     /**
      * Set Storage Domain Realm
@@ -20,4 +20,11 @@ interface iStorageGateway extends iPoirotEntity
      * @return string
      */
     function getRealm();
+
+    /**
+     * Destroy Current Realm Data Source
+     *
+     * @return void
+     */
+    function destroy();
 }

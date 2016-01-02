@@ -4,7 +4,7 @@ namespace Poirot\Storage\Gateway;
 use Poirot\Core\AbstractOptions;
 use Poirot\Core\ErrorStack;
 
-class ArrayFileGateway extends MemoryGateway
+class ArrayFileData extends MemoryData
 {
     protected $isPrepared = false;
     /** @var array Loaded Data On Init */
@@ -39,21 +39,43 @@ class ArrayFileGateway extends MemoryGateway
         return $this;
     }
 
+    /**
+     * Set Storage Domain Realm
+     *
+     * @param string $realm Storage Identity
+     *
+     * @return $this
+     */
+    function setRealm($realm)
+    {
+        $realm = (string) $realm;
+        if($this->realm !== null && $realm !== $this->realm) {
+            ## save current state, prepare new realm
+            $this->save();
+            $this->__importData();
+
+            $dataSource = &$this->attainDataArrayObject();
+            $dataSource = [];
+        }
+
+        $this->realm = $realm;
+        return $this;
+    }
 
     // ...
 
     /**
-     * Empty Entity Data
+     * Destroy Current Realm Data Source
      *
-     * @return $this
+     * @return void
      */
-    function clean()
+    function destroy()
     {
         $file = $this->__getFilePath();
         if (file_exists($file))
             unlink($file);
 
-        return parent::clean();
+        parent::destroy();
     }
 
     /**

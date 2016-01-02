@@ -9,7 +9,7 @@ namespace Poirot\Storage\Gateway;
  *       SO WE MAKE SOME CHANGES, that variables become visible
  *       from first initialization
  */
-class CookieGateway extends BaseGateway
+class CookieData extends BaseData
 {
     protected $domain    = '';
     protected $path      = '/';

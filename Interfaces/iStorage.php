@@ -9,9 +9,9 @@ interface iStorage extends iMetaProvider
     /**
      * Data Gateway
      *
-     * @return iStorageGateway
+     * @return iStorageData
      */
-    function gateway();
+    function data();
 
 
     // Meta Provider:

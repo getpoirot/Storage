@@ -3,9 +3,9 @@ namespace Poirot\Storage\Gateway;
 
 use Poirot\Core\BuilderSetter;
 use Poirot\Core\Traits\EntityTrait;
-use Poirot\Storage\Interfaces\iStorageGateway;
+use Poirot\Storage\Interfaces\iStorageData;
 
-class BaseGateway extends BuilderSetter implements iStorageGateway
+class BaseData extends BuilderSetter implements iStorageData
 {
     use EntityTrait;
 
@@ -78,6 +78,18 @@ class BaseGateway extends BuilderSetter implements iStorageGateway
 
 
     // ...
+
+    /**
+     * Destroy Current Realm Data Source
+     *
+     * @return void
+     */
+    function destroy()
+    {
+        $this->clean();
+    }
+
+
 
     protected function &attainDataArrayObject()
     {

@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Storage\Gateway;
 
-class MemoryGateway extends BaseGateway
+class MemoryData extends BaseData
 {
 
 }

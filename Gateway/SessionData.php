@@ -3,7 +3,7 @@ namespace Poirot\Storage\Gateway;
 
 use Poirot\Core\AbstractOptions;
 
-class SessionGateway extends BaseGateway
+class SessionData extends BaseData
 {
     /** @var boolean */
     protected $isPrepared = false;
@@ -49,6 +49,10 @@ class SessionGateway extends BaseGateway
     protected function &attainDataArrayObject()
     {
         $this->__prepare();
-        return $_SESSION[$this->getRealm()];
+        $realm = $this->getRealm();
+        if (!isset($_SESSION[$realm]))
+            $_SESSION[$realm] = [];
+
+        return $_SESSION[$realm];
     }
 }
