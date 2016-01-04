@@ -2,6 +2,7 @@
 namespace Poirot\Storage\Gateway;
 
 use Poirot\Core\BuilderSetter;
+use Poirot\Core\Interfaces\iDataSetConveyor;
 use Poirot\Core\Traits\EntityTrait;
 use Poirot\Storage\Interfaces\iStorageData;
 
@@ -22,14 +23,15 @@ class BaseData extends BuilderSetter implements iStorageData
     /**
      * Construct
      *
-     * @param null|array $setter
+     * @param string|iDataSetConveyor|array $realm   Realm or Setter Options
+     * @param iDataSetConveyor|array        $setter  Setter Options
      */
-    function __construct($setter = null)
+    function __construct($realm = null, $setter = null)
     {
-        if (is_string($setter)) {
-            $this->setRealm($setter);
-            $setter = null;
-        }
+        if (is_string($realm))
+            $this->setRealm($realm);
+        else
+            $setter = $realm;
 
         parent::__construct($setter);
     }

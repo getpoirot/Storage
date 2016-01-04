@@ -4,6 +4,10 @@ namespace Poirot\Storage\Gateway;
 use Poirot\Core\AbstractOptions;
 use Poirot\Core\ErrorStack;
 
+/*
+new ArrayFileData(['dir_path' => PR_DIR_TEMP, 'realm' => 'user_data']);
+*/
+
 class ArrayFileData extends MemoryData
 {
     protected $isPrepared = false;
