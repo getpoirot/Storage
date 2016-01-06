@@ -150,11 +150,11 @@ class CookieData extends BaseData
      }
 
     /**
-     * Empty Entity Data
+     * Destroy Current Realm Data Source
      *
-     * @return $this
+     * @return void
      */
-    function clean()
+    function destroy()
     {
         /*
          * Cookies must be deleted with the same parameters as they were set with.
@@ -165,8 +165,7 @@ class CookieData extends BaseData
          * time to one year in past.
          */
         $this->__setCookieParam($this->getRealm(), null, -2628000);
-
-        return parent::clean();
+        parent::destroy();
     }
 
     /**
