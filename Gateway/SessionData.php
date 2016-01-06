@@ -35,6 +35,8 @@ class SessionData extends BaseData
 
         if (!$this->__checkSessionRestriction())
             // TODO start session can be implemented if any session data __set
+            // other wise it seems not neccessary to start sesion if no data
+            // read/write happend
             session_start();
 
         $this->isPrepared = true;
