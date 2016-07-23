@@ -8,9 +8,6 @@
             "role": "Developer"
         }
     ],
-    "require": {
-        "poirot/core"  : "dev-master"
-    },
     "target-dir": "Poirot/Storage",
     "autoload"  : {
         "psr-0": {
