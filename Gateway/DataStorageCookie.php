@@ -3,7 +3,27 @@ namespace Poirot\Storage\Gateway;
 use Poirot\Std\Interfaces\Struct\iDataEntity;
 use Poirot\Std\Struct\DataPointerArray;
 
+/*
+$s = new P\Storage\Gateway\DataStorageCookie('my_realm');
+$s->setData([
+    'name'   => 'Payam',
+    'family' => 'Naderi',
+]);
+
+$s->setRealm('new');
+print_r(P\Std\cast($s)->toArray()); // Array ( )
+
+$s->setRealm('my_realm');
+$s->import(['email'  => 'naderi.payam@gmail.com']);
+print_r(P\Std\cast($s)->toArray()); // Array ( [name] => Payam [family] => Naderi [email] => naderi.payam@gmail.com )
+
+// You can see cookie are properly set on other page
+var_dump($_COOKIE);
+*/
+
 /**
+ * TODO cookies no set!!!
+ *
  * note: When we set cookie variables from set_cookie
  *       Cookies will not become visible until the next
  *       loading of a page that the cookie should be visible for.
@@ -102,6 +122,9 @@ class DataStorageCookie
     protected function _newDataStorage()
     {
         $realm = $this->getRealm();
+        if (!isset($_COOKIE[$realm]))
+            $_COOKIE[$realm] = array();
+
         return new DataPointerArray($_COOKIE[$realm]);
     }
     

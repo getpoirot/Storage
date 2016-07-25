@@ -7,6 +7,21 @@ use Poirot\Std\ConfigurableSetter;
 use Poirot\Std\Interfaces\Struct\iDataEntity;
 use Poirot\Std\Struct\DataEntity;
 
+/*
+$s = new P\Storage\Gateway\DataStorageBase('my_realm');
+$s->setData([
+    'name'   => 'Payam',
+    'family' => 'Naderi',
+]);
+
+$s->setRealm('new');
+print_r(P\Std\cast($s)->toArray()); // Array ( )
+
+$s->setRealm('my_realm');
+$s->import(['email'  => 'naderi.payam@gmail.com']);
+print_r(P\Std\cast($s)->toArray()); // Array ( [name] => Payam [family] => Naderi [email] => naderi.payam@gmail.com )
+*/
+
 class DataStorageBase 
     extends ConfigurableSetter
     implements iStorageData
@@ -31,7 +46,7 @@ class DataStorageBase
         else
             $setter = $realm;
 
-        $this->putBuildPriority('realm');
+        $this->putBuildPriority(array('realm'));
         parent::__construct($setter);
     }
 
@@ -117,7 +132,7 @@ class DataStorageBase
     }
 
     /**
-     * Set Struct Data From Array
+     * Import Data Into Current Realm
      *
      * @param array|\Traversable|null $data
      *
@@ -131,7 +146,8 @@ class DataStorageBase
     }
 
     /**
-     * Empty from all values
+     * Empty Values Of Current Realm
+     * 
      * @return $this
      */
     function clean()
@@ -141,7 +157,8 @@ class DataStorageBase
     }
 
     /**
-     * Is Empty?
+     * Is Current Realm Empty?
+     * 
      * @return bool
      */
     function isEmpty()
@@ -150,8 +167,10 @@ class DataStorageBase
     }
 
     /**
-     * NULL value for a property considered __isset false
+     * Has Current Realm Given Key?
+     * 
      * @param mixed $key
+     * 
      * @return bool
      */
     function has($key)
@@ -160,7 +179,8 @@ class DataStorageBase
     }
 
     /**
-     * NULL value for a property considered __isset false
+     * Delete Given Key From Current Realm
+     * 
      * @param mixed $key
      * @return $this
      */
@@ -171,7 +191,7 @@ class DataStorageBase
     }
 
     /**
-     * Set Entity
+     * Set Entity Key/Value Into Current Realm 
      *
      * - values that set to null must be unset from entity
      *
@@ -188,7 +208,7 @@ class DataStorageBase
     }
 
     /**
-     * Get Entity Value
+     * Get Entity Value From Current Realm
      *
      * @param mixed $key Entity Key
      * @param null $default Default If Not Value/Key Exists
@@ -200,6 +220,7 @@ class DataStorageBase
     {
         return $this->_attainRealmDataStorage()->get($key, $default);
     }
+    
     
     // ..
 

@@ -32,7 +32,6 @@ class DataStorageFileAsArray
         if($this->getRealm() !== null && $realm !== $this->getRealm()) {
             ## save current state, prepare new realm
             $this->save();
-            $this->_importData();
         }
 
         return parent::setRealm($realm);
