@@ -1,19 +1,19 @@
 <?php
 namespace Poirot\Storage;
 
-use Poirot\Core\BuilderSetterTrait;
-use Poirot\Core\Entity;
-use Poirot\Core\Interfaces\EntityInterface;
-use Poirot\Core\Interfaces\iDataField;
-use Poirot\Storage\Gateway\MemoryData;
+use Poirot\Storage\Gateway\DataStorageMemory;
 use Poirot\Storage\Interfaces\iStorage;
 use Poirot\Storage\Interfaces\iStorageData;
 
-class Storage implements iStorage
-{
-    use BuilderSetterTrait;
+use Poirot\Std\ConfigurableSetter;
+use Poirot\Std\Interfaces\Struct\iDataMean;
+use Poirot\Std\Struct\DataMean;
 
-    /** @var iDataField Meta Data */
+class Storage 
+    extends ConfigurableSetter 
+    implements iStorage
+{
+    /** @var iDataMean Meta Data */
     protected $meta;
     /** @var iStorageData */
     protected $gateway;
@@ -27,13 +27,13 @@ class Storage implements iStorage
     function data()
     {
         if (!$this->gateway)
-            $this->gateway = new MemoryData;
+            $this->gateway = new DataStorageMemory;
 
         return $this->gateway;
     }
 
+    
     // ...
-
 
     /**
      * Set Data Gateway
@@ -48,6 +48,7 @@ class Storage implements iStorage
         return $this;
     }
 
+    
     // Implement Meta Provider:
 
     /**
@@ -56,12 +57,12 @@ class Storage implements iStorage
      * - use to access meta extra data over storage,
      *   basically used by storage decorators
      *
-     * @return EntityInterface
+     * @return iDataMean
      */
     function meta()
     {
         if (!$this->meta)
-            $this->meta = new Entity();
+            $this->meta = new DataMean();
 
         return $this->meta;
     }

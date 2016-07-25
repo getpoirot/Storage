@@ -1,26 +1,31 @@
 <?php
 namespace Poirot\Storage\Gateway;
 
-use Poirot\Core\AbstractOptions;
+use Poirot\Std\Interfaces\Struct\iDataEntity;
+use Poirot\Std\Struct\DataPointerArray;
 
-class SessionData extends BaseData
+class DataStorageSession
+    extends DataStorageBase
 {
     /** @var boolean */
     protected $isPrepared = false;
 
+    
+    // ..
+    
     /**
-     * Destroy Current Realm Data Source
-     *
-     * @return void
+     * @return iDataEntity
      */
-    function destroy()
+    protected function _newDataStorage()
     {
-        $data = &$this->attainDataArrayObject();
-        unset($data);
-        parent::destroy();
-    }
+        $this->_prepareSession();
+        
+        $realm = $this->getRealm();
+        if (!isset($_SESSION[$realm]))
+            $_SESSION[$realm] = array();
 
-    // ...
+        return new DataPointerArray($_SESSION[$realm]);
+    }
 
     /**
      * Prepare Storage
@@ -28,12 +33,12 @@ class SessionData extends BaseData
      * @throws \Exception
      * @return $this
      */
-    protected function __prepare()
+    protected function _prepareSession()
     {
         if ($this->isPrepared)
             return;
 
-        if (!$this->__checkSessionRestriction())
+        if (!$this->_assertSessionRestriction())
             // TODO start session can be implemented if any session data __set
             // other wise it seems not neccessary to start sesion if no data
             // read/write happend
@@ -47,7 +52,7 @@ class SessionData extends BaseData
      *
      * @return bool
      */
-    protected function __checkSessionRestriction()
+    protected function _assertSessionRestriction()
     {
         if ( php_sapi_name() !== 'cli' ) {
             if ( version_compare(phpversion(), '5.4.0', '>=') ) {
@@ -58,15 +63,5 @@ class SessionData extends BaseData
         }
 
         return false;
-    }
-
-    protected function &attainDataArrayObject()
-    {
-        $this->__prepare();
-        $realm = $this->getRealm();
-        if (!isset($_SESSION[$realm]))
-            $_SESSION[$realm] = [];
-
-        return $_SESSION[$realm];
     }
 }

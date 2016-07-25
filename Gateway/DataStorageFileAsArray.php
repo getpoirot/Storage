@@ -1,14 +1,15 @@
 <?php
 namespace Poirot\Storage\Gateway;
 
-use Poirot\Core\AbstractOptions;
-use Poirot\Core\ErrorStack;
-
 /*
-new ArrayFileData(['dir_path' => PR_DIR_TEMP, 'realm' => 'user_data']);
+new DataStorageFileAsArray(['dir_path' => PR_DIR_TEMP, 'realm' => 'user_data']);
 */
 
-class ArrayFileData extends MemoryData
+use Poirot\Std\ErrorStack;
+use Poirot\Std\Interfaces\Struct\iDataEntity;
+
+class DataStorageFileAsArray 
+    extends DataStorageMemory
 {
     protected $isPrepared = false;
     /** @var array Loaded Data On Init */
@@ -18,6 +19,79 @@ class ArrayFileData extends MemoryData
     protected $dirPath;
 
 
+    /**
+     * Set Storage Domain Realm
+     *
+     * @param string $realm Storage Identity
+     *
+     * @return $this
+     */
+    function setRealm($realm)
+    {
+        $realm = (string) $realm;
+        if($this->getRealm() !== null && $realm !== $this->getRealm()) {
+            ## save current state, prepare new realm
+            $this->save();
+            $this->_importData();
+        }
+
+        return parent::setRealm($realm);
+    }
+
+    // ...
+
+    /**
+     * Destroy Current Realm Data Source
+     *
+     * @return void
+     */
+    function destroy()
+    {
+        $file = $this->_getFilePath();
+        if (file_exists($file))
+            unlink($file);
+
+        parent::destroy();
+    }
+
+    /**
+     * Write Data Into Storage
+     *
+     * @throws \Exception
+     * @return $this
+     */
+    function save()
+    {
+        $file = $this->_getFilePath();
+
+        $data = \Poirot\Std\cast($this)->toArray();
+
+        ErrorStack::handleError(E_ALL);
+        ##  \\\\\
+        ### check for directory tree
+        $dirPath = dirname($file);
+        if (!file_exists($dirPath))
+            mkdir($dirPath, 0777, true);
+
+        $dataStr = "<?php\n". "return " . var_export($data, true) . ";\n";
+        file_put_contents($file, $dataStr, LOCK_EX);
+        ##  /////
+        if ($exception = ErrorStack::handleDone())
+            throw $exception;
+
+        return $this;
+    }
+
+    /**
+     * @return iDataEntity
+     */
+    protected function _newDataStorage()
+    {
+        $this->_prepare();
+        return parent::_newDataStorage();
+    }
+    
+    
     // Options:
 
     /**
@@ -43,95 +117,22 @@ class ArrayFileData extends MemoryData
         return $this;
     }
 
-    /**
-     * Set Storage Domain Realm
-     *
-     * @param string $realm Storage Identity
-     *
-     * @return $this
-     */
-    function setRealm($realm)
-    {
-        $realm = (string) $realm;
-        if($this->realm !== null && $realm !== $this->realm) {
-            ## save current state, prepare new realm
-            $this->save();
-            $this->__importData();
-
-            $dataSource = &$this->attainDataArrayObject();
-            $dataSource = [];
-        }
-
-        $this->realm = $realm;
-        return $this;
-    }
-
-    // ...
-
-    /**
-     * Destroy Current Realm Data Source
-     *
-     * @return void
-     */
-    function destroy()
-    {
-        $file = $this->__getFilePath();
-        if (file_exists($file))
-            unlink($file);
-
-        parent::destroy();
-    }
-
-    /**
-     * Write Data Into Storage
-     *
-     * @throws \Exception
-     * @return $this
-     */
-    function save()
-    {
-        $file = $this->__getFilePath();
-
-        $data = $this->toArray();
-
-        ErrorStack::handleError(E_ALL);
-        ##  \\\\\
-        ### check for directory tree
-        $dirPath = dirname($file);
-        if (!file_exists($dirPath))
-            mkdir($dirPath, 0777, true);
-
-        $dataStr = "<?php\n". "return " . var_export($data, true) . ";\n";
-        file_put_contents($file, $dataStr, LOCK_EX);
-        ##  /////
-        if ($exception = ErrorStack::handleDone())
-            throw $exception;
-
-        return $this;
-    }
-
-
-    // ...
-
-    protected function &attainDataArrayObject()
-    {
-        $this->__prepare();
-        return parent::attainDataArrayObject();
-    }
+    
+    // ..
 
     /**
      * Prepare Storage
      *
      * @return $this
      */
-    protected function __prepare()
+    protected function _prepare()
     {
         if ($this->isPrepared)
             return $this;
 
         $self = $this;
         register_shutdown_function(function() use ($self) {
-            $self->__writeDown();
+            $self->_writeDown();
         });
 
         $this->isPrepared = true;
@@ -140,7 +141,7 @@ class ArrayFileData extends MemoryData
 
         ## import data need attain object and its prepare object again
         ## move after prepared flag to avoid callback recursion
-        $this->__importData();
+        $this->_importData();
         return $this;
     }
 
@@ -148,7 +149,7 @@ class ArrayFileData extends MemoryData
      * Write Data To File
      *
      */
-    protected function __writeDown()
+    protected function _writeDown()
     {
         if (
             @array_intersect_assoc($this->__loadedDataState, $this->toArray()) == $this->toArray()
@@ -159,9 +160,9 @@ class ArrayFileData extends MemoryData
         $this->save();
     }
 
-    function __importData()
+    function _importData()
     {
-        $file = $this->__getFilePath();
+        $file = $this->_getFilePath();
         if (!file_exists($file))
             ## nothing to import, no data written yet!
             return;
@@ -175,7 +176,7 @@ class ArrayFileData extends MemoryData
         if ($exception = ErrorStack::handleDone())
             throw $exception;
 
-        $this->from($data);
+        $this->import($data);
         $this->__loadedDataState = $data;
     }
 
@@ -185,7 +186,7 @@ class ArrayFileData extends MemoryData
      * @throws \Exception
      * @return string
      */
-    protected function __getFilePath()
+    protected function _getFilePath()
     {
         if ($this->getRealm() === null || $this->getRealm() == '' )
             throw new \Exception('No Storage Identity Defined Yet!!');

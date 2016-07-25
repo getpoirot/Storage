@@ -1,9 +1,10 @@
 <?php
 namespace Poirot\Storage\Interfaces;
 
-use Poirot\Core\Interfaces\iPoirotEntity;
+use Poirot\Std\Interfaces\Struct\iDataEntity;
 
-interface iStorageData extends iPoirotEntity
+interface iStorageData 
+    extends iDataEntity
 {
     /**
      * Set Storage Domain Realm

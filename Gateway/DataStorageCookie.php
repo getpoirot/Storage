@@ -1,5 +1,7 @@
 <?php
 namespace Poirot\Storage\Gateway;
+use Poirot\Std\Interfaces\Struct\iDataEntity;
+use Poirot\Std\Struct\DataPointerArray;
 
 /**
  * note: When we set cookie variables from set_cookie
@@ -9,7 +11,8 @@ namespace Poirot\Storage\Gateway;
  *       SO WE MAKE SOME CHANGES, that variables become visible
  *       from first initialization
  */
-class CookieData extends BaseData
+class DataStorageCookie 
+    extends DataStorageBase
 {
     protected $domain    = '';
     protected $path      = '/';
@@ -18,6 +21,90 @@ class CookieData extends BaseData
     protected $lifetime  = /* time() + */ 2628000; // 5 years
 
 
+    /**
+     * Set Property with value
+     *
+     * @param string $prop  Property
+     * @param mixed  $value Value
+     *
+     * @return $this
+     */
+    function set($prop, $value = null)
+    {
+        # send cookie header
+        $key   = "{$this->getRealm()}[{$prop}]";
+        $this->_setCookieParam($key, $value);
+
+        # store as entity property:
+        parent::set($prop, $value);
+        return $this;
+    }
+
+    /**
+     * Get Property
+     * - throw exception if property not found and default get not set
+     *
+     * @param string     $prop    Property name
+     * @param null|mixed $default Default Value if not exists
+     *
+     * @throws \Exception
+     * @return mixed
+     */
+    function get($prop, $default = null)
+     {
+         $value = parent::get($prop, $default);
+         $value = unserialize($value);
+
+         return $value;
+     }
+
+    /**
+     * Destroy Current Realm Data Source
+     *
+     * @return void
+     */
+    function destroy()
+    {
+        /*
+         * Cookies must be deleted with the same parameters as they were set with.
+         * If the value argument is an empty string, or FALSE, and all other
+         * arguments match a previous call to setcookie, then the cookie with the
+         * specified name will be deleted from the remote client.
+         * This is internally achieved by setting value to 'deleted' and expiration
+         * time to one year in past.
+         */
+        $this->_setCookieParam($this->getRealm(), null, -2628000);
+        parent::destroy();
+    }
+
+    /**
+     * Delete a property
+     *
+     * @param string $prop Property
+     *
+     * @return $this
+     */
+    public function del($prop)
+    {
+        if ($this->has($prop)) {
+            ## send cookie expire header
+            $key   = "{$this->getRealm()}[{$prop}]";
+            $this->_setCookieParam($key, null, -2628000);
+        }
+
+        parent::del($prop);
+        return $this;
+    }
+
+    /**
+     * @return iDataEntity
+     */
+    protected function _newDataStorage()
+    {
+        $realm = $this->getRealm();
+        return new DataPointerArray($_COOKIE[$realm]);
+    }
+    
     // Options:
 
     /**
@@ -34,7 +121,7 @@ class CookieData extends BaseData
      */
     public function setDomain($domain)
     {
-        $this->domain = $domain;
+        $this->domain = (string) $domain;
         return $this;
     }
 
@@ -108,91 +195,11 @@ class CookieData extends BaseData
         $this->lifetime = $lifetime;
     }
 
-
     // ...
 
-    /**
-     * Set Property with value
-     *
-     * @param string $prop  Property
-     * @param mixed  $value Value
-     *
-     * @return $this
-     */
-    function set($prop, $value = '__not_set_value__')
+    protected function _setCookieParam($key, $value, $lifetime = null)
     {
-        # send cookie header
-        $key   = "{$this->getRealm()}[{$prop}]";
-        $this->__setCookieParam($key, $value);
-
-        # store as entity property:
-        parent::set($prop, $value);
-
-        return $this;
-    }
-
-    /**
-     * Get Property
-     * - throw exception if property not found and default get not set
-     *
-     * @param string     $prop    Property name
-     * @param null|mixed $default Default Value if not exists
-     *
-     * @throws \Exception
-     * @return mixed
-     */
-    function get($prop, $default = '__not_set_value__')
-     {
-         $value = parent::get($prop, $default);
-         $value = unserialize($value);
-
-         return $value;
-     }
-
-    /**
-     * Destroy Current Realm Data Source
-     *
-     * @return void
-     */
-    function destroy()
-    {
-        /*
-         * Cookies must be deleted with the same parameters as they were set with.
-         * If the value argument is an empty string, or FALSE, and all other
-         * arguments match a previous call to setcookie, then the cookie with the
-         * specified name will be deleted from the remote client.
-         * This is internally achieved by setting value to 'deleted' and expiration
-         * time to one year in past.
-         */
-        $this->__setCookieParam($this->getRealm(), null, -2628000);
-        parent::destroy();
-    }
-
-    /**
-     * Delete a property
-     *
-     * @param string $prop Property
-     *
-     * @return $this
-     */
-    public function del($prop)
-    {
-        if ($this->has($prop)) {
-            ## send cookie expire header
-            $key   = "{$this->getRealm()}[{$prop}]";
-            $this->__setCookieParam($key, null, -2628000);
-        }
-
-        parent::del($prop);
-        return $this;
-    }
-
-
-    // ...
-
-    protected function __setCookieParam($key, $value, $lifetime = null)
-    {
-        $this->__checkCookieRestriction();
+        $this->_assertCookieRestriction();
 
         if (is_bool($value))
             $value = (boolean) $value;
@@ -217,9 +224,7 @@ class CookieData extends BaseData
         );
 
         if (!$r)
-            throw new \Exception(
-                'Unexpected error was happen, cant set cookie.'
-            );
+            throw new \Exception('Unexpected error was happen, cant set cookie.');
 
         $this->setLifetime($currLifetime);
     }
@@ -229,16 +234,9 @@ class CookieData extends BaseData
      *
      * @throws \Exception
      */
-    protected function __checkCookieRestriction()
+    protected function _assertCookieRestriction()
     {
         if (headers_sent())
-            throw new \Exception(
-                'Headers was sent, cookies must be sent before any output from your script.'
-            );
-    }
-
-    protected function &attainDataArrayObject()
-    {
-        return $_COOKIE[$this->getRealm()];
+            throw new \Exception('Headers was sent, cookies must be sent before any output from your script.');
     }
 }

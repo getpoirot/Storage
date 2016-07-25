@@ -1,10 +1,11 @@
 <?php
 namespace Poirot\Storage\Interfaces;
 
-use Poirot\Core\Interfaces\iDataField;
-use Poirot\Core\Interfaces\iMetaProvider;
+use Poirot\Std\Interfaces\Pact\ipMetaProvider;
+use Poirot\Std\Interfaces\Struct\iDataMean;
 
-interface iStorage extends iMetaProvider
+interface iStorage 
+    extends ipMetaProvider
 {
     /**
      * Data Gateway
@@ -22,7 +23,7 @@ interface iStorage extends iMetaProvider
      * - use to access meta extra data over storage,
      *   basically used by storage decorators
      *
-     * @return iDataField
+     * @return iDataMean
      */
     function meta();
 }
