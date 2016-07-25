@@ -1,11 +1,11 @@
 <?php
 namespace Poirot\Storage\Gateway;
 
+use Poirot\Storage\Interfaces\iStorageData;
+
 use Poirot\Std\ConfigurableSetter;
 use Poirot\Std\Interfaces\Struct\iDataEntity;
 use Poirot\Std\Struct\DataEntity;
-use Poirot\Storage\Interfaces\iStorageData;
-use Traversable;
 
 class DataStorageBase 
     extends ConfigurableSetter
@@ -93,7 +93,7 @@ class DataStorageBase
     /**
      * Retrieve an external iterator
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * @return \Traversable An instance of an object implementing <b>Iterator</b> or
      * <b>Traversable</b>
      * @since 5.0.0
      */
