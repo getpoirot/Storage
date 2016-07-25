@@ -71,7 +71,7 @@ class DataStorageBase
     function getRealm()
     {
         if (!$this->realm)
-            $this->setRealm(self::REALM_DEFAULT);
+            $this->realm = self::REALM_DEFAULT;
 
         return $this->realm;
     }
