@@ -12,8 +12,9 @@ class DataStorageFileAsArray
     extends DataStorageMemory
 {
     protected $isPrepared = false;
+
     /** @var array Loaded Data On Init */
-    protected $__loadedDataState = null;
+    protected $_c_loadedDataState = null;
 
     // Options
     protected $dirPath;
@@ -150,8 +151,10 @@ class DataStorageFileAsArray
      */
     protected function _writeDown()
     {
+        $thisAsArray = \Poirot\Std\cast($this)->toArray();
+
         if (
-            @array_intersect_assoc($this->__loadedDataState, $this->toArray()) == $this->toArray()
+            @array_intersect_assoc($this->_c_loadedDataState, $thisAsArray) == $thisAsArray
         )
             // Nothing Have Changed
             return;
@@ -176,7 +179,7 @@ class DataStorageFileAsArray
             throw $exception;
 
         $this->import($data);
-        $this->__loadedDataState = $data;
+        $this->_c_loadedDataState = $data;
     }
 
     /**
