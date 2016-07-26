@@ -1,5 +1,6 @@
 <?php
 namespace Poirot\Storage\Gateway;
+
 use Poirot\Std\Interfaces\Struct\iDataEntity;
 use Poirot\Std\Struct\DataPointerArray;
 
@@ -22,8 +23,6 @@ var_dump($_COOKIE);
 */
 
 /**
- * TODO cookies no set!!!
- *
  * note: When we set cookie variables from set_cookie
  *       Cookies will not become visible until the next
  *       loading of a page that the cookie should be visible for.
@@ -52,31 +51,12 @@ class DataStorageCookie
     function set($prop, $value = null)
     {
         # send cookie header
-        $key   = "{$this->getRealm()}[{$prop}]";
-        $this->_setCookieParam($key, $value);
+        $this->_setCookieParam($prop, $value);
 
         # store as entity property:
         parent::set($prop, $value);
         return $this;
     }
-
-    /**
-     * Get Property
-     * - throw exception if property not found and default get not set
-     *
-     * @param string     $prop    Property name
-     * @param null|mixed $default Default Value if not exists
-     *
-     * @throws \Exception
-     * @return mixed
-     */
-    function get($prop, $default = null)
-     {
-         $value = parent::get($prop, $default);
-         $value = unserialize($value);
-
-         return $value;
-     }
 
     /**
      * Destroy Current Realm Data Source
@@ -93,7 +73,9 @@ class DataStorageCookie
          * This is internally achieved by setting value to 'deleted' and expiration
          * time to one year in past.
          */
-        $this->_setCookieParam($this->getRealm(), null, -2628000);
+        foreach ($this as $k => $v)
+            $this->_setCookieParam($k, null, -2628000);
+
         parent::destroy();
     }
 
@@ -108,8 +90,7 @@ class DataStorageCookie
     {
         if ($this->has($prop)) {
             ## send cookie expire header
-            $key   = "{$this->getRealm()}[{$prop}]";
-            $this->_setCookieParam($key, null, -2628000);
+            $this->_setCookieParam($prop, null, -2628000);
         }
 
         parent::del($prop);
@@ -127,7 +108,7 @@ class DataStorageCookie
 
         return new DataPointerArray($_COOKIE[$realm]);
     }
-    
+
     // Options:
 
     /**
@@ -224,17 +205,14 @@ class DataStorageCookie
     {
         $this->_assertCookieRestriction();
 
-        if (is_bool($value))
-            $value = (boolean) $value;
-        elseif ($value !== null)
-            $value = serialize($value);
-
         $currLifetime = $this->getLifetime();
 
         if ($lifetime === null)
             $lifetime = $this->getLifetime();
         else
             $this->setLifetime($lifetime);
+
+        $key   = "{$this->getRealm()}[{$key}]";
 
         $r = @setcookie(
             $key
