@@ -2,7 +2,18 @@
 namespace Poirot\Storage\Gateway;
 
 /*
-new DataStorageFileAsArray(['dir_path' => PR_DIR_TEMP, 'realm' => 'user_data']);
+$s = new P\Storage\Gateway\DataStorageSession('my_realm');
+$s->setData([
+    'name'   => 'Payam',
+    'family' => 'Naderi',
+]);
+
+$s->setRealm('new');
+print_r(P\Std\cast($s)->toArray()); // Array ( )
+
+$s->setRealm('my_realm');
+$s->import(['email'  => 'naderi.payam@gmail.com']);
+print_r(P\Std\cast($s)->toArray()); // Array ( [name] => Payam [family] => Naderi [email] => naderi.payam@gmail.com )
 */
 
 use Poirot\Std\ErrorStack;
@@ -11,10 +22,16 @@ use Poirot\Std\Interfaces\Struct\iDataEntity;
 class DataStorageFileAsArray 
     extends DataStorageMemory
 {
+    protected static $STATE_OK = 'OK';
+    protected static $STATE_UPDATED = 'UPDATED';
+
     protected $isPrepared = false;
 
     /** @var array Loaded Data On Init */
-    protected $_c_loadedDataState = null;
+    protected $_c_loadedDataState = array(
+        // to consider what changed and data must save or not!
+        // 'realm_domain' => 'UPDATED' | 'OK'
+    );
 
     // Options
     protected $dirPath;
@@ -32,18 +49,15 @@ class DataStorageFileAsArray
         $realm = (string) $realm;
         if($this->getRealm() !== null && $realm !== $this->getRealm()) {
             ## save current state, prepare new realm
-            $this->save();
+            $this->_writeDown();
         }
 
         return parent::setRealm($realm);
     }
 
-    // ...
-
     /**
-     * Destroy Current Realm Data Source
-     *
-     * @return void
+     * @override cause change state
+     * @inheritdoc
      */
     function destroy()
     {
@@ -51,7 +65,48 @@ class DataStorageFileAsArray
         if (file_exists($file))
             unlink($file);
 
+        $this->_changeState(self::$STATE_UPDATED);
         parent::destroy();
+    }
+
+    /**
+     * @override cause change state
+     * @inheritdoc
+     */
+    function import($data)
+    {
+        $this->_changeState(self::$STATE_UPDATED);
+        return parent::import($data);
+    }
+
+    /**
+     * @override cause change state
+     * @inheritdoc
+     */
+    function clean()
+    {
+        $this->_changeState(self::$STATE_UPDATED);
+        return parent::clean();
+    }
+
+    /**
+     * @override cause change state
+     * @inheritdoc
+     */
+    function del($key)
+    {
+        $this->_changeState(self::$STATE_UPDATED);
+        return parent::del($key);
+    }
+
+    /**
+     * @override cause change state
+     * @inheritdoc
+     */
+    function set($key, $value)
+    {
+        $this->_changeState(self::$STATE_UPDATED);
+        return parent::set($key, $value);
     }
 
     /**
@@ -79,19 +134,11 @@ class DataStorageFileAsArray
         if ($exception = ErrorStack::handleDone())
             throw $exception;
 
+        $this->_changeState(self::$STATE_OK);
         return $this;
     }
 
-    /**
-     * @return iDataEntity
-     */
-    protected function _newDataStorage()
-    {
-        $this->_prepare();
-        return parent::_newDataStorage();
-    }
-    
-    
+
     // Options:
 
     /**
@@ -121,14 +168,26 @@ class DataStorageFileAsArray
     // ..
 
     /**
+     * @return iDataEntity
+     */
+    protected function _newDataStorage()
+    {
+        $this->_prepare();
+
+        $entity = parent::_newDataStorage();
+        ## import persist data if available as defaults
+        $this->_importDataInto($entity);
+        return $entity;
+    }
+
+    /**
      * Prepare Storage
      *
-     * @return $this
      */
     protected function _prepare()
     {
         if ($this->isPrepared)
-            return $this;
+            return ;
 
         $self = $this;
         register_shutdown_function(function() use ($self) {
@@ -136,33 +195,15 @@ class DataStorageFileAsArray
         });
 
         $this->isPrepared = true;
-
-        // ...
-
-        ## import data need attain object and its prepare object again
-        ## move after prepared flag to avoid callback recursion
-        $this->_importData();
-        return $this;
     }
 
     /**
-     * Write Data To File
-     *
+     * Import Persist Data Into Entity as Default Values
+     * @param iDataEntity $entity
+     * @throws \ErrorException|null
+     * @throws \Exception
      */
-    protected function _writeDown()
-    {
-        $thisAsArray = \Poirot\Std\cast($this)->toArray();
-
-        if (
-            @array_intersect_assoc($this->_c_loadedDataState, $thisAsArray) == $thisAsArray
-        )
-            // Nothing Have Changed
-            return;
-
-        $this->save();
-    }
-
-    function _importData()
+    function _importDataInto(iDataEntity $entity)
     {
         $file = $this->_getFilePath();
         if (!file_exists($file))
@@ -178,13 +219,26 @@ class DataStorageFileAsArray
         if ($exception = ErrorStack::handleDone())
             throw $exception;
 
-        $this->import($data);
-        $this->_c_loadedDataState = $data;
+        $entity->import($data);
+    }
+
+    /**
+     * Write Data To File
+     */
+    protected function _writeDown()
+    {
+        if (
+            !isset($this->_c_loadedDataState[$this->getRealm()])
+            || $this->_c_loadedDataState[$this->getRealm()] === self::$STATE_OK
+        )
+            // Nothing Has Changed
+            return;
+
+        $this->save();
     }
 
     /**
      * Get Current Storage FilePath Name
-     *
      * @throws \Exception
      * @return string
      */
@@ -197,5 +251,15 @@ class DataStorageFileAsArray
         $file = $opt_directory . DIRECTORY_SEPARATOR . $this->getRealm() . '.array.php';
 
         return $file;
+    }
+
+    /**
+     * To Consider Save State If Data Changed
+     * @param string $state
+     */
+    protected function _changeState($state)
+    {
+        $realm = $this->getRealm();
+        $this->_c_loadedDataState[$realm] = $state;
     }
 }
