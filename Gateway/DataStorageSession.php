@@ -45,6 +45,7 @@ class DataStorageSession
         if (!isset($_SESSION[$realm]))
             $_SESSION[$realm] = array();
 
+        // PHP Allow direct change into global variable $_SESSION to manipulate data!
         return new DataPointerArray($_SESSION[$realm]);
     }
 
@@ -60,9 +61,6 @@ class DataStorageSession
             return;
 
         if (!$this->_assertSessionRestriction())
-            // TODO start session can be implemented if any session data __set
-            // other wise it seems not neccessary to start sesion if no data
-            // read/write happend
             session_start();
 
         $this->isPrepared = true;
