@@ -114,6 +114,9 @@ class DataStorageBase
      */
     public function getIterator()
     {
+        // NOTE: consider if you have any specific functionality on get() method
+        //       this cause read data directly from entity object.
+        
         return $this->_attainRealmDataStorage()->getIterator();
     }
 
@@ -141,7 +144,22 @@ class DataStorageBase
      */
     function import($data)
     {
-        $this->_attainRealmDataStorage()->import($data);
+        if ($data === null)
+            return $this;
+
+        if (!(is_array($data) || $data instanceof \Traversable || $data instanceof \stdClass))
+            throw new \InvalidArgumentException(sprintf(
+                'Data must be instance of \Traversable, \stdClass or array. given: (%s)'
+                , \Poirot\Std\flatten($data)
+            ));
+
+        if ($data instanceof \stdClass)
+            $data = \Poirot\Std\toArrayObject($data);
+
+        
+        foreach ($data as $k => $v)
+            $this->set($k, $v);
+
         return $this;
     }
 
