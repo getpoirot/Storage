@@ -26,7 +26,7 @@ var_dump($_SESSION);
 
 
 class DataStorageSession
-    extends DataStorageBase
+    extends aDataStore
 {
     /** @var boolean */
     protected $isPrepared = false;
@@ -37,7 +37,7 @@ class DataStorageSession
     /**
      * @return iDataEntity
      */
-    protected function _newDataStorage()
+    protected function _newDataEntity()
     {
         $this->_prepareSession();
         

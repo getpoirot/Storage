@@ -31,7 +31,7 @@ var_dump($_COOKIE);
  *       from first initialization
  */
 class DataStorageCookie 
-    extends DataStorageBase
+    extends aDataStore
 {
     protected $domain    = '';
     protected $path      = '/';
@@ -100,7 +100,7 @@ class DataStorageCookie
     /**
      * @return iDataEntity
      */
-    protected function _newDataStorage()
+    protected function _newDataEntity()
     {
         $realm = $this->getRealm();
         if (!isset($_COOKIE[$realm]))

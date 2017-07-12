@@ -1,17 +1,24 @@
 {
-    "name"       : "poirot/storage",
-    "type"       : "library",
-    "authors": [
+    "name"       : "poirot/storage"
+   ,"description": "An Abstraction key-value store API."
+   ,"type"       : "library"
+   ,"authors": [
         {
-            "name": "Payam Naderi",
-            "email": "naderi.payam@gmail.com",
-            "role": "Developer"
+            "name": "Payam Naderi"
+           ,"email": "naderi.payam@gmail.com"
+           ,"role": "Developer"
         }
-    ],
-    "target-dir": "Poirot/Storage",
-    "autoload"  : {
-        "psr-0": {
-            "Poirot\\Storage": "."
+    ]
+   ,"target-dir": "Poirot/Storage"
+   ,"autoload"  : {
+        "psr-4": {
+            "Poirot\\Storage\\": "src/"
         }
+       ,"files": [
+          "src/_functions.php"
+        ]
     }
+   ,"repositories": [
+      { "type": "git" ,"url": "https://github.com/phPoirot/Storage.git" }
+    ]
 }
