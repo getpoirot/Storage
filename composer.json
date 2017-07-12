@@ -9,7 +9,6 @@
            ,"role": "Developer"
         }
     ]
-   ,"target-dir": "Poirot/Storage"
    ,"autoload"  : {
         "psr-4": {
             "Poirot\\Storage\\": "src/"
