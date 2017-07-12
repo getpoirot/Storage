@@ -1,7 +1,8 @@
 <?php
-namespace Poirot\Storage\Gateway;
+namespace Poirot\Storage\Http;
 
 use Poirot\Std\Struct\DataPointerArray;
+use Poirot\Storage\Gateway\InMemoryStore;
 
 
 /**
