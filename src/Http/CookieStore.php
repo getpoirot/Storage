@@ -1,37 +1,19 @@
 <?php
 namespace Poirot\Storage\Gateway;
 
-use Poirot\Std\Interfaces\Struct\iDataEntity;
 use Poirot\Std\Struct\DataPointerArray;
 
-/*
-$s = new P\Storage\Gateway\DataStorageCookie('my_realm');
-$s->setData([
-    'name'   => 'Payam',
-    'family' => 'Naderi',
-]);
-
-$s->setRealm('new');
-print_r(P\Std\cast($s)->toArray()); // Array ( )
-
-$s->setRealm('my_realm');
-$s->import(['email'  => 'naderi.payam@gmail.com']);
-print_r(P\Std\cast($s)->toArray()); // Array ( [name] => Payam [family] => Naderi [email] => naderi.payam@gmail.com )
-
-// You can see cookie are properly set on other page
-var_dump($_COOKIE);
-*/
 
 /**
  * note: When we set cookie variables from set_cookie
  *       Cookies will not become visible until the next
  *       loading of a page that the cookie should be visible for.
  *
- *       SO WE MAKE SOME CHANGES, that variables become visible
+ *       SO, MAKE SOME CHANGES, that variables become visible
  *       from first initialization
  */
-class DataStorageCookie 
-    extends aDataStore
+class CookieStore
+    extends InMemoryStore
 {
     protected $domain    = '';
     protected $path      = '/';
@@ -41,21 +23,49 @@ class DataStorageCookie
 
 
     /**
-     * Set Property with value
+     * Initialize
      *
-     * @param string $prop  Property
-     * @param mixed  $value Value
-     *
-     * @return $this
      */
-    function set($prop, $value = null)
+    function __init()
+    {
+        parent::__init();
+
+
+        $this->_assertCookieRestriction();
+
+
+        $realm = $this->getRealm();
+        if (! isset($_COOKIE[$realm]) )
+            $_COOKIE[$realm] = array();
+
+        // PHP Allow direct change into global variable $_SESSION to manipulate data!
+        $this->data = new DataPointerArray( $_COOKIE[$realm] );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function set($key, $value)
     {
         # send cookie header
-        $this->_setCookieParam($prop, $value);
+        $this->_setCookieParam($key, $value);
 
         # store as entity property:
-        parent::set($prop, $value);
+        parent::set($key, $value);
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function del($key)
+    {
+        if ( $this->has($key) )
+            ## send cookie expire header
+            $this->_setCookieParam($key, null, -2628000);
+
+
+        parent::del($key);
     }
 
     /**
@@ -79,35 +89,6 @@ class DataStorageCookie
         parent::destroy();
     }
 
-    /**
-     * Delete a property
-     *
-     * @param string $prop Property
-     *
-     * @return $this
-     */
-    public function del($prop)
-    {
-        if ($this->has($prop)) {
-            ## send cookie expire header
-            $this->_setCookieParam($prop, null, -2628000);
-        }
-
-        parent::del($prop);
-        return $this;
-    }
-
-    /**
-     * @return iDataEntity
-     */
-    protected function _newDataEntity()
-    {
-        $realm = $this->getRealm();
-        if (!isset($_COOKIE[$realm]))
-            $_COOKIE[$realm] = array();
-
-        return new DataPointerArray($_COOKIE[$realm]);
-    }
 
     // Options:
 
@@ -199,12 +180,11 @@ class DataStorageCookie
         $this->lifetime = $lifetime;
     }
 
+
     // ...
 
     protected function _setCookieParam($key, $value, $lifetime = null)
     {
-        $this->_assertCookieRestriction();
-
         $currLifetime = $this->getLifetime();
 
         if ($lifetime === null)
@@ -224,7 +204,7 @@ class DataStorageCookie
             , $this->getHttpOnly()
         );
 
-        if (!$r)
+        if (! $r )
             throw new \Exception('Unexpected error was happen, cant set cookie.');
 
         $this->setLifetime($currLifetime);
@@ -237,7 +217,15 @@ class DataStorageCookie
      */
     protected function _assertCookieRestriction()
     {
-        if (headers_sent())
-            throw new \Exception('Headers was sent, cookies must be sent before any output from your script.');
+        $stat = false;
+        if ( php_sapi_name() !== 'cli' ) {
+            if ( headers_sent() )
+                throw new \Exception('Headers was sent, cookies must be sent before any output from your script.');
+
+            $stat = true;
+        }
+
+        if ( false === $stat )
+            throw new \Exception('Session Cant Be Initialized.');
     }
 }

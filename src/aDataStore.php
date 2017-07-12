@@ -103,10 +103,11 @@ abstract class aDataStore
      *
      * @return void
      */
-    final function destroy()
+    function destroy()
     {
-        $self = $this;
+        $this->clean();
 
+        $self = $this;
         register_shutdown_function(function() use ($self) {
             $self->doDestroy();
         });
