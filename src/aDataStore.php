@@ -18,7 +18,7 @@ abstract class aDataStore
     /**
      * Construct
      *
-     * @param string             $realm    Realm or Setter Options
+     * @param string             $realm    Realm
      * @param array|\Traversable $settings Setter Options
      *
      * @throws \Exception
@@ -111,19 +111,6 @@ abstract class aDataStore
         register_shutdown_function(function() use ($self) {
             $self->doDestroy();
         });
-    }
-
-    /**
-     * Command To Force Persist Currents
-     *
-     * @return $this
-     * @throws exIOError
-     */
-    function save()
-    {
-        // Implement
-
-        return $this;
     }
 
 

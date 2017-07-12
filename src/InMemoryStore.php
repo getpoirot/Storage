@@ -45,6 +45,8 @@ class InMemoryStore
      */
     function get($key, $default = null)
     {
+        \Poirot\Storage\assertKey($key);
+
         return ( isset($this->data[$key]) ) ? $this->data[$key] : $default;
     }
 
@@ -60,6 +62,8 @@ class InMemoryStore
     {
         foreach ($keys as $k)
             yield $this->get($k);
+
+        yield;
     }
 
     /**
