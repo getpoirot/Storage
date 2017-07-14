@@ -1,7 +1,7 @@
 <?php
 namespace Poirot\Storage\Interfaces;
 
-use Poirot\Storage\exUnknownData;
+use Poirot\Storage\Exception\exUnknownData;
 
 
 interface iInterchangeable

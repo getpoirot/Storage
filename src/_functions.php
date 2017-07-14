@@ -1,6 +1,9 @@
 <?php
 namespace Poirot\Storage
 {
+    use Poirot\Storage\Exception\exInvalidKey;
+
+
     /**
      * Assert Given Key
      *
@@ -16,6 +19,5 @@ namespace Poirot\Storage
                 , \Poirot\Std\flatten($key)
             ));
     }
-
 
 }

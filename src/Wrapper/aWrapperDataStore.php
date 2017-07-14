@@ -1,10 +1,10 @@
 <?php
 namespace Poirot\Storage\Wrapper;
 
+use Poirot\Storage\Exception\exDataMalformed;
+use Poirot\Storage\Exception\exDataNotPersistable;
+use Poirot\Storage\Exception\exInvalidKey;
 use Poirot\Storage\Exception\Storage\exIOError;
-use Poirot\Storage\exDataMalformed;
-use Poirot\Storage\exDataNotPersistable;
-use Poirot\Storage\exInvalidKey;
 use Poirot\Storage\Interfaces\iDataStore;
 use Traversable;
 

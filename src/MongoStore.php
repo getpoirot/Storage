@@ -4,10 +4,12 @@ namespace Poirot\Storage;
 use MongoDB\Collection;
 use MongoDB\Exception\UnexpectedValueException;
 use Poirot\Std\Exceptions\exImmutable;
+use Poirot\Storage\Exception\exDataMalformed;
+use Poirot\Storage\Exception\exDataNotPersistable;
+use Poirot\Storage\Exception\exInvalidKey;
 use Poirot\Storage\Exception\Storage\exIOError;
 use Poirot\Storage\Exception\Storage\exReadError;
 use Poirot\Storage\Exception\Storage\exWriteError;
-use Poirot\Storage\Gateway\InMemoryStore;
 use Poirot\Storage\Interchange\SerializeInterchange;
 use Poirot\Storage\Interfaces\iInterchangeable;
 

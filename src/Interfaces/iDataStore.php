@@ -2,10 +2,10 @@
 namespace Poirot\Storage\Interfaces;
 
 use Poirot\Std\Interfaces\Struct\iDataEntity;
+use Poirot\Storage\Exception\exDataMalformed;
+use Poirot\Storage\Exception\exDataNotPersistable;
+use Poirot\Storage\Exception\exInvalidKey;
 use Poirot\Storage\Exception\Storage\exIOError;
-use Poirot\Storage\exDataMalformed;
-use Poirot\Storage\exDataNotPersistable;
-use Poirot\Storage\exInvalidKey;
 
 
 interface iDataStore

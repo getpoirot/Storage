@@ -1,5 +1,5 @@
 <?php
-namespace Poirot\Storage;
+namespace Poirot\Storage\Exception;
 
 class exDataMalformed
     extends \RuntimeException

@@ -2,7 +2,7 @@
 namespace Poirot\Storage\Http;
 
 use Poirot\Std\Struct\DataPointerArray;
-use Poirot\Storage\Gateway\InMemoryStore;
+use Poirot\Storage\InMemoryStore;
 
 
 /**

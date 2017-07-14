@@ -1,10 +1,10 @@
 <?php
-namespace Poirot\Storage\Gateway;
+namespace Poirot\Storage;
 
 use Poirot\Std\ErrorStack;
 use Poirot\Std\Exceptions\exImmutable;
+use Poirot\Storage\Exception\exDataMalformed;
 use Poirot\Storage\Exception\Storage\exReadError;
-use Poirot\Storage\exDataMalformed;
 use Poirot\Storage\Interchange\SerializeInterchange;
 use Poirot\Storage\Interfaces\iInterchangeable;
 

@@ -1,7 +1,6 @@
 <?php
-namespace Poirot\Storage\Gateway;
+namespace Poirot\Storage;
 
-use Poirot\Storage\Exception\Storage\exIOError;
 use Poirot\Storage\Interfaces\iDataStore;
 use Poirot\Std\ConfigurableSetter;
 
