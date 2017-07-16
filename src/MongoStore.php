@@ -1,8 +1,9 @@
 <?php
 namespace Poirot\Storage;
 
-use MongoDB\Collection;
+use MongoDB;
 use MongoDB\Exception\UnexpectedValueException;
+
 use Poirot\Std\Exceptions\exImmutable;
 use Poirot\Storage\Exception\exDataMalformed;
 use Poirot\Storage\Exception\exDataNotPersistable;
@@ -14,10 +15,19 @@ use Poirot\Storage\Interchange\SerializeInterchange;
 use Poirot\Storage\Interfaces\iInterchangeable;
 
 
+/**
+ * These Index is needed for mongo:
+ *
+ * {
+ *   "key": NumberLong(1),
+ *   "realm": NumberLong(1)
+ * }
+ *
+ */
 class MongoStore
     extends InMemoryStore
 {
-    /** @var Collection */
+    /** @var MongoDB\Collection */
     protected $collection;
     /** @var iInterchangeable */
     protected $interchange;
@@ -60,8 +70,10 @@ class MongoStore
 
 
         $key   = (string) $key;
-        $value = $this->getDataInterchange()->makeForward($value);
+        $serializedValue = $this->getDataInterchange()->makeForward($value);
         $realm = $this->getRealm();
+
+        $value = new MongoDB\BSON\Binary($serializedValue, MongoDB\BSON\Binary::TYPE_GENERIC);
 
         try {
             $this->collection->replaceOne(
@@ -110,7 +122,7 @@ class MongoStore
 
         $r = (null === $document)
             ? $default
-            : $this->getDataInterchange()->retrieveBackward($r['value']);
+            : $this->getDataInterchange()->retrieveBackward($document['value']);
 
 
         parent::set($key, $r);
@@ -147,8 +159,6 @@ class MongoStore
         } catch (\Exception $e) {
             throw new exReadError($e->getMessage(), $e->getCode(), $e);
         }
-
-        yield;
     }
 
     /**
@@ -194,7 +204,7 @@ class MongoStore
             throw new exReadError($e->getMessage(), $e->getCode(), $e);
         }
 
-        return $count > 0;
+        return ($count > 0);
     }
 
     /**
@@ -226,7 +236,7 @@ class MongoStore
     /**
      * Get Mongo Collection Instance
      *
-     * @return Collection
+     * @return MongoDB\Collection
      */
     function getCollection()
     {
@@ -236,11 +246,11 @@ class MongoStore
     /**
      * Set Mongo Collection Instance
      *
-     * @param Collection $collection
+     * @param MongoDB\Collection $collection
      *
      * @return $this
      */
-    function giveCollection(Collection $collection)
+    function giveCollection(MongoDB\Collection $collection)
     {
         if ($this->collection)
             throw new exImmutable;
@@ -291,13 +301,11 @@ class MongoStore
             );
 
             foreach ($c as $d)
-                yield $d['key'] => $d['value'];
+                yield $d['key'] => $this->getDataInterchange()->retrieveBackward( $d['value'] );
 
         } catch (\Exception $e) {
             throw new exReadError($e->getMessage(), $e->getCode(), $e);
         }
-
-        yield;
     }
 
 

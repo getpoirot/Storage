@@ -101,7 +101,9 @@ class FlatFileStore
         ### check for directory tree
         $dirPath = dirname($file);
         if (! file_exists($dirPath) )
-            mkdir($dirPath, 0777, true);
+            if ( false === mkdir($dirPath, 0777, true) )
+                throw new \RuntimeException(sprintf('Cant create store directory on (%s).', $dirPath));
+
         file_put_contents($file, $dataStr, LOCK_EX);
         ##  /////
         if ($exception = ErrorStack::handleDone())

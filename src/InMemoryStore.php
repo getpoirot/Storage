@@ -62,8 +62,6 @@ class InMemoryStore
     {
         foreach ($keys as $k)
             yield $this->get($k);
-
-        yield;
     }
 
     /**

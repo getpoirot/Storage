@@ -18,7 +18,8 @@ class SessionStore
 
 
         $this->_assertSessionRestriction();
-        session_start();
+        if (! isset($_SESSION) )
+            session_start();
 
 
         $realm = $this->getRealm();
@@ -55,9 +56,9 @@ class SessionStore
         $stat = false;
         if ( php_sapi_name() !== 'cli' ) {
             if ( version_compare(phpversion(), '5.4.0', '>=') ) {
-                $stat = session_status() === PHP_SESSION_ACTIVE ? true : false;
+                $stat = ( session_status() !== PHP_SESSION_DISABLED ? true : false );
             } else {
-                $stat = session_id() === '' ? false : true;
+                $stat = ( session_id() === '' ? false : true );
             }
         }
 
