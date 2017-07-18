@@ -12,7 +12,7 @@ class SessionStore
      * Initialize
      *
      */
-    function __init()
+    protected function __init()
     {
         parent::__init();
 
