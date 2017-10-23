@@ -81,7 +81,7 @@ class MongoStore
                     'key'   => $key,
                     'realm' => $realm,
                 ]
-                , [ 'key' => $key, 'value' => $value, 'realm' => $realm ]
+                , [ 'key' => $key, 'value' => $value, 'value_humanize' => $serializedValue, 'realm' => $realm ]
                 , [ 'upsert' => true ]
             );
         } catch (UnexpectedValueException $e) {
