@@ -22,7 +22,7 @@ class RedisStore extends aDataStore
     /** @var iInterchangeable */
     protected $interchange;
 
-    /** @var  Predis\Client */
+    /** @var  \Predis\Client */
     protected $client;
 
     protected function doDestroy()
@@ -197,11 +197,11 @@ class RedisStore extends aDataStore
     /**
      * Set Redis Client Instance
      *
-     * @param Predis\Client $client
+     * @param \Predis\Client $client
      *
      * @return $this
      */
-    function giveClient(Predis\Client $client)
+    function giveClient(\Predis\Client $client)
     {
         if ($this->client)
             throw new exImmutable;
@@ -213,7 +213,7 @@ class RedisStore extends aDataStore
     /**
      * Get Redis Client Instance
      *
-     * @return Predis\Client
+     * @return \Predis\Client
      */
     function getClient()
     {
