@@ -16,7 +16,6 @@ class SessionStore
     {
         parent::__init();
 
-
         $this->_assertSessionRestriction();
         if (! isset($_SESSION) )
             session_start();
@@ -41,6 +40,26 @@ class SessionStore
     protected function doDestroy()
     {
         // do nothing
+    }
+
+    // Options:
+
+    /**
+     * Lifetime of the session cookie, defined in seconds.
+     *
+     * @param $int
+     *
+     * @return $this
+     */
+    function setLifetime($int)
+    {
+        // TODO
+        // The effect of this function only lasts for the duration of the script.
+        // Thus, you need to call session_set_cookie_params() for every request
+        // and before session_start() is called.
+
+        session_set_cookie_params($int);
+        return $this;
     }
 
 
