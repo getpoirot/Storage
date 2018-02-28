@@ -32,7 +32,8 @@ class SessionStore
     function destroy()
     {
         // Tell client to remove session data
-        unset( $this->data[$this->getRealm()] );
+        unset( $this->data[$this->getRealm()] ); // remove from data and
+        unset( $_SESSION[$this->getRealm()] );   // remove from session because with reference not work!
 
         parent::destroy();
     }
