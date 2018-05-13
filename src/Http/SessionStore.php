@@ -5,6 +5,7 @@ use Poirot\Std\Struct\DataPointerArray;
 use Poirot\Storage\InMemoryStore;
 
 
+// TODO session as a service in http sapi
 class SessionStore
     extends InMemoryStore
 {
