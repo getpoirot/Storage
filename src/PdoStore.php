@@ -59,12 +59,14 @@ class PdoStore
 
             // Find
             //
-            $sql = "BEGIN;";
-            $sql.= "DELETE FROM `KVStore` WHERE `realm` = '$realm' and `key` = '$key';";
-            $sql.= "INSERT INTO `KVStore` (`realm`, `key`, `value`) VALUES ('$realm', '$key', '$value');";
-            $sql.= "COMMIT;";
+            $this->pdo->beginTransaction();
 
+            $sql = "DELETE FROM `KVStore` WHERE `realm` = '$realm' and `key` = '$key';";
+            $sql.= "INSERT INTO `KVStore` (`realm`, `key`, `value`) VALUES ('$realm', '$key', '$value');";
             $this->pdo->exec($sql);
+
+            $this->pdo->commit();
+
 
         } catch (\Exception $e) {
             throw new exWriteError('Error While Write To Pdo Client.', $e->getCode(), $e);
@@ -237,6 +239,65 @@ class PdoStore
     }
 
 
+    // Implement Countable
+
+    /**
+     * Count elements of an object
+     * @return int The custom count as an integer.
+     */
+    function count()
+    {
+        $realm = $this->getRealm();
+
+
+        try {
+            $sql = "SELECT COUNT(*) as has_key FROM `KVStore` WHERE `realm` = '$realm';";
+            $stm = $this->pdo->prepare($sql);
+            $stm->execute();
+            $stm->setFetchMode(\PDO::FETCH_ASSOC);
+
+            $count = $stm->fetch();
+            $count = (int) $count['has_key'];
+
+        } catch (\Exception $e) {
+            throw new exReadError($e->getMessage(), $e->getCode(), $e);
+        }
+
+        return $count;
+    }
+
+
+    // Implement Iterator
+
+    /**
+     * Retrieve an external iterator
+     * @return \Traversable
+     */
+    function getIterator()
+    {
+        // TODO improve iteration by pagination
+
+        $realm = $this->getRealm();
+
+
+        try {
+            $sql = "SELECT * FROM `KVStore` WHERE `realm` = '$realm';";
+
+            $stm = $this->pdo->prepare($sql);
+            $stm->execute();
+            $stm->setFetchMode(\PDO::FETCH_ASSOC);
+
+            $c = $stm->fetchAll();
+
+            foreach ($c as $d)
+                yield $d['key'] => $this->getDataInterchange()->retrieveBackward( $d['value'] );
+
+        } catch (\Exception $e) {
+            throw new exReadError($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+
     // Options:
 
     /**
@@ -284,64 +345,5 @@ class PdoStore
             $this->giveDataInterchange(new SerializeInterchange);
 
         return $this->interchange;
-    }
-
-
-    // Implement Iterator
-
-    /**
-     * Retrieve an external iterator
-     * @return \Traversable
-     */
-    function getIterator()
-    {
-        // TODO improve iteration by pagination
-
-        $realm = $this->getRealm();
-
-
-        try {
-            $sql = "SELECT * FROM `KVStore` WHERE `realm` = '$realm';";
-
-            $stm = $this->pdo->prepare($sql);
-            $stm->execute();
-            $stm->setFetchMode(\PDO::FETCH_ASSOC);
-
-            $c = $stm->fetchAll();
-
-            foreach ($c as $d)
-                yield $d['key'] => $this->getDataInterchange()->retrieveBackward( $d['value'] );
-
-        } catch (\Exception $e) {
-            throw new exReadError($e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-
-    // Implement Countable
-
-    /**
-     * Count elements of an object
-     * @return int The custom count as an integer.
-     */
-    function count()
-    {
-        $realm = $this->getRealm();
-
-
-        try {
-            $sql = "SELECT COUNT(*) as has_key FROM `KVStore` WHERE `realm` = '$realm';";
-            $stm = $this->pdo->prepare($sql);
-            $stm->execute();
-            $stm->setFetchMode(\PDO::FETCH_ASSOC);
-
-            $count = $stm->fetch();
-            $count = (int) $count['has_key'];
-
-        } catch (\Exception $e) {
-            throw new exReadError($e->getMessage(), $e->getCode(), $e);
-        }
-
-        return $count;
     }
 }
