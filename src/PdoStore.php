@@ -86,7 +86,7 @@ class PdoStore
      */
     function get($key, $default = null)
     {
-        if ( $r = parent::get($key, null) )
+        if ( $r = parent::get($key, $default) )
             return $r;
 
 
@@ -106,7 +106,7 @@ class PdoStore
             throw new exReadError($e->getMessage(), $e->getCode(), $e);
         }
 
-        $r = (null === $document)
+        $r = (false === $document)
             ? $default
             : $this->getDataInterchange()->retrieveBackward($document['value']);
 
